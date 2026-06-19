@@ -24,6 +24,16 @@ FOCUS = DEMO / "rough_terrain_filter_focus.png"
 SUMMARY = DERIVED / "morphology_filter_summary.json"
 
 
+def font(size: int, bold: bool = False):
+    names = ["arialbd.ttf", "arial.ttf"] if bold else ["arial.ttf"]
+    for name in names:
+        try:
+            return ImageFont.truetype(name, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
 def read(path: Path) -> np.ndarray:
     with rasterio.open(path) as src:
         arr = src.read(1).astype("float32")
@@ -86,11 +96,15 @@ def main() -> None:
     canvas.alpha_composite(overlay)
     out = canvas.convert("RGB")
     draw = ImageDraw.Draw(out)
-    font = ImageFont.load_default()
-    draw.rectangle((34, 34, 760, 146), fill=(4, 9, 12), outline=(255, 93, 93), width=2)
-    draw.text((54, 54), "Rough Terrain / Lobate-Rim False-Positive Filter", fill=(244, 247, 248), font=font)
-    draw.text((54, 80), "Rejects steep, low-access, radar-bright rough terrain before ice-volume ranking.", fill=(255, 180, 180), font=font)
-    draw.text((54, 106), "Mentor alignment: distinguish ice-rich regions from rough rocky terrains.", fill=(150, 211, 205), font=font)
+    draw.rectangle((42, 42, 1010, 218), fill=(4, 9, 12), outline=(255, 93, 93), width=4)
+    draw.text((70, 68), "Rough-Terrain False-Positive Filter", fill=(244, 247, 248), font=font(34, bold=True))
+    draw.text((70, 116), "Red overlay = reject or review before ice-volume ranking", fill=(255, 180, 180), font=font(25))
+    draw.text((70, 154), "Purpose: distinguish candidate ice from radar-bright rough rocky terrain.", fill=(150, 211, 205), font=font(22))
+    draw.rectangle((1050, 42, 1390, 218), fill=(4, 9, 12), outline=(242, 191, 90), width=3)
+    draw.text((1072, 72), "Mentor checklist", fill=(242, 191, 90), font=font(23, bold=True))
+    draw.text((1072, 112), "Slope + access + SAR/cold", fill=(238, 248, 249), font=font(19))
+    draw.text((1072, 142), "mismatch screen", fill=(238, 248, 249), font=font(19))
+    draw.text((1072, 172), "before rover route choice", fill=(238, 248, 249), font=font(19))
     out.save(FOCUS, quality=95)
 
     valid = np.isfinite(rough_risk)

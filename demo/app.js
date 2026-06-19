@@ -1,4 +1,4 @@
-const assetVersion = "20260620-science-readiness";
+const assetVersion = "20260620-visual-polish";
 const demoStateKey = "lunarIceJudgeDemoState";
 
 const layers = [

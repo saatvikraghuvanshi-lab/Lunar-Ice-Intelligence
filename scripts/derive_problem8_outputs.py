@@ -31,6 +31,33 @@ VOLUME_FOCUS = DEMO / "ice_volume_estimator_focus.png"
 SUMMARY = DERIVED / "problem8_gap_closure_summary.json"
 
 
+def font(size: int, bold: bool = False):
+    names = ["arialbd.ttf", "arial.ttf"] if bold else ["arial.ttf"]
+    for name in names:
+        try:
+            return ImageFont.truetype(name, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
+def wrap_text(text: str, draw: ImageDraw.ImageDraw, text_font: ImageFont.ImageFont, max_width: int) -> list[str]:
+    words = text.split()
+    lines: list[str] = []
+    current = ""
+    for word in words:
+        test = f"{current} {word}".strip()
+        if draw.textbbox((0, 0), test, font=text_font)[2] <= max_width:
+            current = test
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines
+
+
 def read(path: Path) -> tuple[np.ndarray, dict]:
     with rasterio.open(path) as src:
         arr = src.read(1).astype("float32")
@@ -76,14 +103,22 @@ def draw_bar(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], value: f
 def draw_metric_card(title: str, subtitle: str, lines: list[str], path: Path, accent=(49, 214, 204)) -> None:
     canvas = Image.new("RGB", (1440, 960), (5, 9, 13))
     draw = ImageDraw.Draw(canvas)
+    title_font = font(42, bold=True)
+    subtitle_font = font(24)
+    body_font = font(29)
+    small_font = font(22)
     draw.rectangle((34, 34, 1406, 926), outline=(45, 75, 86), width=2)
-    draw.text((58, 54), title, fill=(238, 248, 249), font=ImageFont.load_default())
-    draw.text((58, 80), subtitle, fill=accent, font=ImageFont.load_default())
-    y = 138
+    draw.text((66, 62), title, fill=(238, 248, 249), font=title_font)
+    draw.text((66, 116), subtitle, fill=accent, font=subtitle_font)
+    y = 190
     for line in lines:
-        draw.rectangle((58, y, 1382, y + 72), fill=(10, 18, 23), outline=(39, 61, 70), width=1)
-        draw.text((78, y + 24), line, fill=(210, 228, 232), font=ImageFont.load_default())
-        y += 92
+        wrapped = wrap_text(line, draw, body_font, 1200)
+        height = max(102, 38 + len(wrapped) * 36)
+        draw.rectangle((66, y, 1374, y + height), fill=(10, 18, 23), outline=(39, 61, 70), width=2)
+        for index, text_line in enumerate(wrapped):
+            draw.text((94, y + 24 + index * 38), text_line, fill=(218, 235, 238), font=body_font)
+        y += height + 24
+    draw.text((66, 888), "Scientific claim level: screening evidence only, not confirmed lunar ice.", fill=(150, 211, 205), font=small_font)
     path.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(path, quality=95)
 
@@ -136,10 +171,15 @@ def make_dsc_layer() -> dict:
     base_rgba.alpha_composite(color)
     canvas = base_rgba.convert("RGB")
     draw = ImageDraw.Draw(canvas)
-    draw.rectangle((34, 34, 688, 132), fill=(4, 9, 12), outline=(242, 191, 90), width=2)
-    draw.text((54, 54), "Doubly Shadowed Crater Proxy: DSC-1 / Faustini-class target", fill=(244, 247, 248), font=ImageFont.load_default())
-    draw.text((54, 78), f"Top 6% cold/shadow terrain mask | area {candidate_area_m2 / 1_000_000:.2f} sq km", fill=(255, 224, 166), font=ImageFont.load_default())
-    draw.text((54, 102), "Proxy-generated until official supplied crater AOI is received.", fill=(150, 211, 205), font=ImageFont.load_default())
+    panel = (42, 42, 950, 202)
+    draw.rectangle(panel, fill=(4, 9, 12), outline=(242, 191, 90), width=4)
+    draw.text((70, 66), "DSC-1 / Faustini-Class Candidate", fill=(244, 247, 248), font=font(34, bold=True))
+    draw.text((70, 112), f"Top 6% cold + shadow mask | area {candidate_area_m2 / 1_000_000:.2f} sq km", fill=(255, 224, 166), font=font(25))
+    draw.text((70, 150), "Cyan overlay = proxy doubly shadowed crater evidence; official AOI still pending.", fill=(150, 211, 205), font=font(22))
+    draw.rectangle((1010, 42, 1390, 202), fill=(4, 9, 12), outline=(53, 229, 214), width=3)
+    draw.text((1032, 68), "Why it matters", fill=(53, 229, 214), font=font(24, bold=True))
+    draw.text((1032, 106), "Prioritizes volatile-friendly terrain", fill=(238, 248, 249), font=font(20))
+    draw.text((1032, 136), "for landing + rover traverse planning.", fill=(238, 248, 249), font=font(20))
     canvas.save(DSC_FOCUS, quality=95)
 
     return {

@@ -246,59 +246,103 @@ def make_footprint_card(products: list[dict], tmc: dict) -> None:
     canvas = Image.new("RGB", (1440, 960), (5, 9, 13))
     draw = ImageDraw.Draw(canvas)
     draw.rectangle((34, 34, 1406, 926), outline=(45, 75, 86), width=2)
-    draw.text((58, 58), "OHRC Footprint Registration Audit", fill=(238, 248, 249), font=font(36))
-    draw.text((58, 104), "per-pixel selenographic geometry is present; exact AOI registration remains a controlled next step", fill=(150, 211, 205), font=font(20))
-    draw.rectangle((70, 170, 1370, 670), fill=(7, 14, 18), outline=(41, 66, 76), width=2)
+    draw.text((58, 54), "OHRC Footprint Registration Audit", fill=(238, 248, 249), font=font(42))
+    draw.text((58, 108), "zoomed view of downloaded OHRC geometry CSV footprints", fill=(150, 211, 205), font=font(25))
+
+    all_lats = []
+    all_lons = []
+    for product in products:
+        fp = product["footprint"]
+        all_lats.extend([fp["lat_min"], fp["lat_max"]])
+        all_lons.extend([fp["lon_min"], fp["lon_max"]])
+    lon_pad = 0.8
+    lat_pad = 0.35
+    lon_min = min(all_lons) - lon_pad
+    lon_max = max(all_lons) + lon_pad
+    lat_min = min(all_lats) - lat_pad
+    lat_max = max(all_lats) + lat_pad
+
+    plot = (70, 180, 1005, 710)
+    draw.rectangle(plot, fill=(7, 14, 18), outline=(41, 66, 76), width=2)
 
     def map_xy(lon: float, lat: float) -> tuple[int, int]:
-        lon_norm = (lon + 180) % 360 - 180
-        x = 110 + int(((lon_norm + 180) / 360) * 1220)
-        y = 620 - int(((lat + 90) / 10) * 420)
+        x = plot[0] + int(((lon - lon_min) / (lon_max - lon_min)) * (plot[2] - plot[0]))
+        y = plot[3] - int(((lat - lat_min) / (lat_max - lat_min)) * (plot[3] - plot[1]))
         return x, y
 
-    # south-pole reference grid
-    for lat in [-90, -88, -86, -84, -82, -80]:
-        _, y = map_xy(0, lat)
-        draw.line((110, y, 1330, y), fill=(18, 36, 43), width=1)
-        draw.text((76, y - 8), f"{abs(lat)}S", fill=(91, 133, 143), font=font(14))
-    for lon in [-120, -60, 0, 60, 120]:
-        x, _ = map_xy(lon, -85)
-        draw.line((x, 200, x, 620), fill=(18, 36, 43), width=1)
-        draw.text((x - 16, 638), f"{lon}", fill=(91, 133, 143), font=font(14))
+    for step in range(5):
+        lat = lat_min + step * (lat_max - lat_min) / 4
+        _, y = map_xy(lon_min, lat)
+        draw.line((plot[0], y, plot[2], y), fill=(18, 36, 43), width=1)
+        draw.text((plot[0] + 10, y - 22), f"{abs(lat):.2f}S", fill=(111, 158, 168), font=font(18))
+    for step in range(5):
+        lon = lon_min + step * (lon_max - lon_min) / 4
+        x, _ = map_xy(lon, lat_min)
+        draw.line((x, plot[1], x, plot[3]), fill=(18, 36, 43), width=1)
+        draw.text((x - 26, plot[3] + 14), f"{lon:.1f}E", fill=(111, 158, 168), font=font(18))
 
     colors = [(53, 229, 214), (242, 191, 90)]
-    for product, color in zip(products, colors):
+    label_offsets = [(18, 18), (18, 64)]
+    for index, (product, color) in enumerate(zip(products, colors)):
         bbox = product["footprint"]
-        lon_min = (bbox["lon_min"] + 180) % 360 - 180
-        lon_max = (bbox["lon_max"] + 180) % 360 - 180
-        x1, y1 = map_xy(lon_min, bbox["lat_max"])
-        x2, y2 = map_xy(lon_max, bbox["lat_min"])
+        x1, y1 = map_xy(bbox["lon_min"], bbox["lat_max"])
+        x2, y2 = map_xy(bbox["lon_max"], bbox["lat_min"])
         draw.rectangle((min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2)), outline=color, width=4)
-        draw.text((min(x1, x2) + 8, min(y1, y2) + 8), product["id"], fill=color, font=font(22))
+        lx = min(x1, x2) + label_offsets[index][0]
+        ly = min(y1, y2) + label_offsets[index][1]
+        draw.rectangle((lx - 8, ly - 4, lx + 150, ly + 34), fill=(4, 9, 12), outline=color, width=2)
+        draw.text((lx, ly), product["id"], fill=color, font=font(24))
 
-    y = 710
+    side_x = 1040
+    draw.rectangle((side_x, 180, 1370, 710), fill=(8, 17, 22), outline=(45, 75, 86), width=2)
+    draw.text((side_x + 26, 214), "How to read this", fill=(53, 229, 214), font=font(28))
+    notes = [
+        "Each box is a downloaded OHRC strip footprint derived from its geometry CSV.",
+        "Both strips sit inside the TMC-2 south-pole latitude range.",
+        "This proves geometry readiness, not final official crater AOI registration.",
+    ]
+    yy = 270
+    for note in notes:
+        words = note.split()
+        line = ""
+        for word in words:
+            test = f"{line} {word}".strip()
+            if draw.textbbox((0, 0), test, font=font(21))[2] <= 250:
+                line = test
+            else:
+                draw.text((side_x + 30, yy), line, fill=(222, 236, 240), font=font(21))
+                yy += 30
+                line = word
+        draw.text((side_x + 30, yy), line, fill=(222, 236, 240), font=font(21))
+        yy += 48
+    draw.rectangle((side_x + 26, 604, side_x + 304, 670), fill=(18, 18, 10), outline=(92, 78, 36), width=2)
+    draw.text((side_x + 44, 622), "Next: map-project and intersect", fill=(255, 224, 166), font=font(18))
+    draw.text((side_x + 44, 646), "with official supplied crater AOI.", fill=(255, 224, 166), font=font(18))
+
+    y = 748
     for product in products:
         overlap = "regional overlap" if product["tmc_lat_overlap"] else "outside TMC latitude span"
-        draw.rectangle((58, y, 1382, y + 82), fill=(9, 18, 23), outline=(41, 66, 76), width=1)
-        draw.text((82, y + 18), product["id"], fill=(53, 229, 214), font=font(22))
-        draw.text((190, y + 18), product["product"], fill=(238, 248, 249), font=font(20))
-        draw.text((190, y + 48), f"{product['footprint']['lat_min']:.3f} to {product['footprint']['lat_max']:.3f} lat | {overlap}", fill=(185, 211, 214), font=font(17))
-        y += 92
+        draw.rectangle((58, y, 1382, y + 70), fill=(9, 18, 23), outline=(41, 66, 76), width=1)
+        draw.text((82, y + 16), product["id"], fill=(53, 229, 214), font=font(24))
+        draw.text((200, y + 16), product["product"], fill=(238, 248, 249), font=font(21))
+        draw.text((720, y + 18), f"Lat {product['footprint']['lat_min']:.3f} to {product['footprint']['lat_max']:.3f} | {overlap}", fill=(185, 211, 214), font=font(19))
+        y += 80
     canvas.save(FOOTPRINT_CARD, quality=95)
 
 
 def make_hazard_card(products: list[dict]) -> None:
     canvas = Image.new("RGB", (1440, 960), (5, 9, 13))
     draw = ImageDraw.Draw(canvas)
-    draw.text((42, 34), "OHRC Browse-Scale Hazard Extraction", fill=(238, 248, 249), font=font(34))
-    draw.text((42, 76), "crater/boulder candidate overlay; final hazard certification needs registered full-resolution OHRC AOI", fill=(150, 211, 205), font=font(19))
-    panels = [(42, 126, 700, 880), (740, 126, 1398, 880)]
+    draw.rectangle((34, 34, 1406, 926), outline=(45, 75, 86), width=2)
+    draw.text((58, 58), "OHRC Browse-Scale Hazard Extraction", fill=(238, 248, 249), font=font(40))
+    draw.text((58, 110), "candidate crater/boulder zones for landing and rover-traverse review", fill=(150, 211, 205), font=font(24))
+    panels = [(58, 170, 640, 750), (676, 170, 1258, 750)]
     for product, box in zip(products, panels):
         img = Image.open(product["browse_path"]).convert("RGB")
         img = ImageEnhance.Contrast(img).enhance(1.35)
-        img.thumbnail((box[2] - box[0], box[3] - box[1] - 60), Image.Resampling.LANCZOS)
+        img.thumbnail((box[2] - box[0] - 30, box[3] - box[1] - 76), Image.Resampling.LANCZOS)
         x = box[0] + (box[2] - box[0] - img.width) // 2
-        y = box[1] + 28
+        y = box[1] + 22
         canvas.paste(img, (x, y))
         panel_draw = ImageDraw.Draw(canvas)
         for index, candidate in enumerate(product["hazards"][:12], start=1):
@@ -308,8 +352,23 @@ def make_hazard_card(products: list[dict]) -> None:
             color = (242, 191, 90) if index <= 6 else (53, 229, 214)
             panel_draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline=color, width=3)
         draw.rectangle(box, outline=(45, 75, 86), width=2)
-        draw.rectangle((box[0], box[3] - 52, box[2], box[3]), fill=(4, 9, 12))
-        draw.text((box[0] + 18, box[3] - 38), f"{product['id']} | {len(product['hazards'])} browse-scale hazard candidates", fill=(238, 248, 249), font=font(20))
+        draw.rectangle((box[0], box[3] - 58, box[2], box[3]), fill=(4, 9, 12))
+        draw.text((box[0] + 18, box[3] - 42), f"{product['id']} | {len(product['hazards'])} candidates", fill=(238, 248, 249), font=font(23))
+
+    legend_x = 1280
+    draw.rectangle((legend_x, 170, 1384, 750), fill=(8, 17, 22), outline=(45, 75, 86), width=2)
+    draw.text((legend_x + 18, 202), "Legend", fill=(53, 229, 214), font=font(22))
+    draw.ellipse((legend_x + 22, 252, legend_x + 62, 292), outline=(242, 191, 90), width=4)
+    draw.text((legend_x + 18, 306), "top", fill=(255, 224, 166), font=font(18))
+    draw.text((legend_x + 18, 330), "review", fill=(255, 224, 166), font=font(18))
+    draw.ellipse((legend_x + 22, 392, legend_x + 62, 432), outline=(53, 229, 214), width=4)
+    draw.text((legend_x + 18, 446), "secondary", fill=(181, 255, 250), font=font(17))
+    draw.text((legend_x + 18, 470), "review", fill=(181, 255, 250), font=font(17))
+
+    draw.rectangle((58, 790, 1384, 884), fill=(9, 18, 23), outline=(41, 66, 76), width=2)
+    draw.text((86, 812), "Interpretation", fill=(242, 191, 90), font=font(24))
+    draw.text((264, 812), "This is a browse-scale hazard proxy. It helps explain where the rover route needs local inspection.", fill=(238, 248, 249), font=font(22))
+    draw.text((264, 846), "Final landing certification still requires full-resolution OHRC registration to the official crater AOI.", fill=(150, 211, 205), font=font(21))
     canvas.save(HAZARD_CARD, quality=95)
 
 
