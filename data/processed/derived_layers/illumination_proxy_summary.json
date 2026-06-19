@@ -1,0 +1,19 @@
+{
+  "source": "data\\processed\\extracted_tmc2_south_pole\\data\\derived\\20231203\\ch2_tmc_ndn_20231203T0019079527_d_dtm_d18.tif",
+  "method": "Prototype low-sun hillshade proxy using eight azimuths at 1.5 degree solar altitude.",
+  "products": {
+    "illumination_availability_proxy": {
+      "png": "data\\processed\\derived_layers\\illumination_availability_proxy.png",
+      "tif": "data\\processed\\derived_layers\\illumination_availability_proxy.tif"
+    },
+    "shadow_persistence_proxy": {
+      "png": "data\\processed\\derived_layers\\shadow_persistence_proxy.png",
+      "tif": "data\\processed\\derived_layers\\shadow_persistence_proxy.tif"
+    },
+    "cold_trap_proxy": {
+      "png": "data\\processed\\derived_layers\\cold_trap_proxy.png",
+      "tif": "data\\processed\\derived_layers\\cold_trap_proxy.tif"
+    }
+  },
+  "note": "This is an illumination/shadow proxy for hackathon screening, not a substitute for validated ephemeris-based PSR products."
+}

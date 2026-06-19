@@ -1,0 +1,34 @@
+{
+  "source": "data\\processed\\extracted_tmc2_south_pole\\data\\derived\\20231203\\ch2_tmc_ndn_20231203T0019079527_d_dtm_d18.tif",
+  "crs": "PROJCS[\"Polar StereoGraphic\",GEOGCS[\"Polar StereoGraphic\",DATUM[\"Moon Spheroid\",SPHEROID[\"Moon Spheroid\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+  "source_bounds_m": [
+    -156232.75,
+    40890.265625,
+    -362.75,
+    205660.265625
+  ],
+  "approx_latitude_range_deg": {
+    "approx_min_lat": -88.65153465816796,
+    "approx_max_lat": -81.49834337357103
+  },
+  "downsampled_shape": [
+    4096,
+    3874
+  ],
+  "pixel_size_m_at_processing_scale": 40.23489932885906,
+  "products": {
+    "tmc2_south_pole_elevation": "data\\processed\\derived_layers\\tmc2_south_pole_elevation.png",
+    "tmc2_south_pole_slope_deg": "data\\processed\\derived_layers\\tmc2_south_pole_slope_deg.png",
+    "tmc2_south_pole_accessibility_score": "data\\processed\\derived_layers\\tmc2_south_pole_accessibility_score.png",
+    "tmc2_south_pole_slope_deg_tif": "data\\processed\\derived_layers\\tmc2_south_pole_slope_deg.tif",
+    "tmc2_south_pole_accessibility_score_tif": "data\\processed\\derived_layers\\tmc2_south_pole_accessibility_score.tif",
+    "tmc2_south_pole_orthobrowse": "data\\processed\\derived_layers\\tmc2_south_pole_orthobrowse.png",
+    "tmc2_south_pole_dtm_browse": "data\\processed\\derived_layers\\tmc2_south_pole_dtm_browse.png",
+    "tmc2_south_pole_contact_sheet": "data\\processed\\derived_layers\\tmc2_south_pole_contact_sheet.png"
+  },
+  "notes": [
+    "TMC-2 DTM is used for terrain feasibility layers.",
+    "Accessibility is a prototype score based on low slope and moderate local relief; it is not a certified landing-site safety product.",
+    "Full OTH raster remains zipped to save roughly 2 GB of disk space; browse image is enough for demo context."
+  ]
+}

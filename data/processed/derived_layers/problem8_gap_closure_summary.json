@@ -1,0 +1,40 @@
+{
+  "framing": "Problem Statement 8 gap closure outputs for Faustini-class doubly shadowed crater screening.",
+  "doubly_shadowed_crater_proxy": {
+    "threshold_score": 95.30413217583731,
+    "candidate_area_m2": 141676522.18255165,
+    "candidate_area_km2": 141.67652218255165,
+    "volume_scenarios_m3": {
+      "low_3pct": 21251478.327382747,
+      "medium_8pct": 56670608.87302066,
+      "high_15pct": 106257391.63691373
+    },
+    "depth_m": 5.0,
+    "outputs": {
+      "dsc_tif": "data\\processed\\derived_layers\\doubly_shadowed_crater_proxy_score.tif",
+      "dsc_png": "data\\processed\\derived_layers\\doubly_shadowed_crater_proxy_score.png",
+      "dsc_focus": "data\\processed\\demo_assets\\doubly_shadowed_crater_focus.png"
+    }
+  },
+  "cpr_dop_gate": {
+    "status": "CPR/DOP-ready proxy, not exact CPR/DOP",
+    "why_not_exact": "Current extracted DFSAR rasters are intensity products. Exact CPR/DOP needs calibrated polarimetric products with required phase/coherency terms or official MIDAS-style outputs.",
+    "thresholds_from_problem": {
+      "cpr": "> 1",
+      "dop": "< 0.13"
+    },
+    "proxy_candidate_pixel_pct": 2.713254996764204,
+    "mean_cpr_proxy_in_candidates": 1.1984864299135445,
+    "mean_dop_risk_proxy_in_candidates": 0.06014339203182504,
+    "output_image": "data\\processed\\demo_assets\\cpr_dop_threshold_focus.png"
+  },
+  "volume_estimator": {
+    "output_image": "data\\processed\\demo_assets\\ice_volume_estimator_focus.png",
+    "assumption": "area * 5 m * ice_fraction"
+  },
+  "scientific_caution": [
+    "DSC-1 is a proxy target until the official supplied crater AOI is received.",
+    "CPR/DOP output is a threshold-ready proxy, not exact CPR/DOP.",
+    "Volume estimate is scenario-based and must be recalibrated after exact radar inversion."
+  ]
+}

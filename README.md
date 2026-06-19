@@ -1,135 +1,76 @@
-﻿# Lunar-Ice-Intelligence
+# Lunar Ice Intelligence
 
- # Lunar Ice Intelligence System - Data Baseline
+Mission-planning prototype for **Problem Statement 8: Detection and Characterization of Subsurface Ice in Lunar South Polar Regions Using Chandrayaan-2 Radar and Imagery Data for Landing Site and Rover Traverse Planning**.
 
-## Current MVP Dataset
+The system fuses Chandrayaan-2 DFSAR radar evidence, TMC-2 terrain products, OHRC context, illumination/cold-trap proxies, NASA LOLA validation, rough-terrain rejection, solar-aware A* routing, and top-5m ice-volume scenarios.
 
-Raw ZIP archives are kept untouched under `data/raw`.
+## Current Scientific Claim
 
-| Instrument | File | Purpose |
-| --- | --- | --- |
-| DFSAR | `data/raw/dfsar/ch2_sar_ncls_20200913t042439405_d_fp_d18.zip` | Radar evidence layer for candidate subsurface ice indicators |
-| OHRC | `data/raw/ohrc/ch2_ohr_ncp_20260103T0609041371_d_img_d18.zip` | High-resolution visual hazard inspection |
-| OHRC | `data/raw/ohrc/ch2_ohr_ncp_20260103T1005176450_d_img_d18.zip` | Second optical strip for comparison |
-| TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20231203T0019079527_d_dtm_d18.zip` | South-pole terrain model for slope and traverse-cost planning |
-| TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20231203T0019079527_d_oth_d18.zip` | Matching south-pole orthorectified image context, kept zipped to save disk |
-| TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20250426T0752081453_d_dtm_d18.zip` | Deprecated non-polar terrain test data |
-| TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20250426T0752081453_d_oth_d18.zip` | Deprecated non-polar ortho test data |
+This project does **not** claim confirmed lunar water ice.
 
-Supporting guides are under `data/raw/docs`.
+It provides an auditable screening and mission-planning workflow for ranking candidate subsurface-ice targets in a Faustini-class doubly shadowed crater setting.
 
-## Storage
+## What The Demo Shows
 
-- Raw zipped science data: about 3.86 GB.
-- Minimal extracted working set plus derived products: about 3.22 GB.
-- The full south-pole TMC-2 orthoproduct expands to about 1.96 GB. It is intentionally left zipped unless full-resolution texture processing is needed.
+- CPR/DOP threshold gate: `CPR > 1` and `DOP < 0.13` are explicit.
+- DSC-1 / Faustini-class doubly shadowed crater proxy target.
+- Rough-terrain false-positive rejection before candidate ranking.
+- TMC-2 slope/accessibility terrain safety.
+- NASA LRO/LOLA coarse validation.
+- Cold-trap and illumination proxy.
+- Solar-aware A* traverse from LZ-A to SCI-B/DSC-1.
+- Top 5 m volume scenarios: 3%, 8%, and 15% assumed ice fraction.
+- Limitations and scientific honesty panel.
 
-## Extracted Working Set
+## Run Locally
 
-The minimal extracted files live under:
+Static evidence dashboard:
 
-```text
-data/processed/extracted_minimal/
+```powershell
+python -m http.server 8765
 ```
 
-This includes:
-
-- Deprecated non-polar TMC-2 DTM and ortho GeoTIFFs plus labels, retained only as pipeline test data.
-- Compact DFSAR SRI/GRI GeoTIFF layers plus geometry CSVs and labels.
-- OHRC browse PNGs, geometry CSVs, and labels.
-- Official browse PNGs for quick visual validation.
-
-The valid south-pole TMC-2 working set lives under:
+Open:
 
 ```text
-data/processed/extracted_tmc2_south_pole/
+http://localhost:8765/demo/index.html
 ```
 
-This includes the full south-pole DTM GeoTIFF, DTM/ortho browse images, labels, and readme. The full-resolution ortho GeoTIFF remains zipped in `data/raw/tmc2`.
+Next.js auth/product shell:
 
-Generated quicklooks live under:
+```powershell
+cd web
+npm install
+npm run dev
+```
+
+Open:
 
 ```text
-data/processed/quicklooks/
+http://127.0.0.1:3001/signup
 ```
 
-Open this for a visual summary:
+Temporary hackathon behavior: sign-in can route directly to the evidence dashboard without credentials.
 
-```text
-data/processed/quicklooks/contact_sheet.png
-```
+## Data Policy
 
-## Derived Layers
+Raw Chandrayaan-2 archives, extracted GeoTIFF rasters, virtual environments, and build caches are intentionally not tracked in GitHub.
 
-Generated science/demo layers live under:
+See [data/DATA_MANIFEST.md](data/DATA_MANIFEST.md) for the local raw-data layout and required products.
 
-```text
-data/processed/derived_layers/
-```
+## Key Documents
 
-Key outputs:
+- [Problem Statement 8 Compliance](docs/PROBLEM_STATEMENT_8_COMPLIANCE.md)
+- [Mentor Requirements Alignment](docs/MENTOR_REQUIREMENTS_ALIGNMENT.md)
+- [Radar CPR/DOP Readiness](docs/RADAR_CPR_DOP_READINESS.md)
+- [Data Manifest](data/DATA_MANIFEST.md)
+- [Runbook](RUNBOOK.md)
+- [Source Audit](SOURCE_AUDIT.md)
 
-- `sar_candidate_ice_evidence_score.png`
-- `sar_candidate_ice_evidence_score.tif`
-- `tmc2_south_pole_elevation.png`
-- `tmc2_south_pole_slope_deg.png`
-- `tmc2_south_pole_accessibility_score.png`
-- `tmc2_south_pole_contact_sheet.png`
-- `tmc2_south_pole_summary.json`
+## Remaining High-Priority Work
 
-The south-pole TMC-2 strip is in lunar polar stereographic projection and approximately spans `88.65S` to `81.50S`.
-
-## Next Processing Steps
-
-1. Register DFSAR radar evidence and TMC-2 terrain products into a common AOI grid.
-2. Add PSR/illumination and temperature proxy layers.
-3. Use OHRC geometry CSVs and browse imagery for hazard-context overlays.
-4. Convert the current prototype scores into reproducible feature-based candidate ranking.
-5. Add rover traverse graph search across the accessibility layer.
-
-## Demo Entry Point
-
-Static dashboard:
-
-```text
-demo/index.html
-```
-
-Open it in a browser to view the first evidence-board prototype.
-
-# Source Audit and Competitive Upgrade Plan
-
-This project should present sources as an evidence pipeline, not as decoration. The table below separates what is already used from what should be integrated next.
-
-| Source | Current status | What it contributes | Evidence in workspace | Next competitive upgrade |
-| --- | --- | --- | --- | --- |
-| ISRO PRADAN | Used | Official Chandrayaan-2 raw data download source | `data/raw/dfsar`, `data/raw/ohrc`, `data/raw/tmc2` | Add product IDs and timestamps to every UI layer card |
-| ISSDC Chandrayaan-2 mission page | Used | Payload/mission context for DFSAR, OHRC, TMC-2 | `data/raw/docs/*user*guide*.pdf` | Parse metadata fields into a searchable product table |
-| ISRO DFSAR 2026 subsurface-ice release | Used as science anchor | CPR > 1 and DOP < 0.13 target criteria for ice interpretation | SAR ratio/evidence layers in `data/processed/derived_layers` | Compute exact CPR/DOP if complex/full-polarimetric parameters are available |
-| Chandrayaan-2 Map Browse | Used | AOI and product discovery route | South-pole TMC-2 pair `20231203T0019079527` | Add repeatable AOI search recipe and screenshots |
-| VEDAS OHRC note | Used operationally | OHRC product discovery/download guidance | OHRC raw ZIPs and browse quicklooks | Use OHRC geometry CSVs for exact footprint overlays |
-| NASA PDS / LRO LOLA | Used for validation | Independent lunar topography, slope, roughness, and class reference | `lola_validation_focus.png`, `lola_external_validation_summary.json` | Add higher-resolution LOLA/SLDEM validation when storage budget permits |
-| NASA PGDA Lunar Polar Illumination | Used as validation target | Illumination/PSR context for power and volatile preservation | `illumination_availability_proxy.png`, `shadow_persistence_proxy.png`, `cold_trap_proxy.png` | Validate proxy against ephemeris-based polar illumination products |
-| Lunar South Pole Atlas, LPI | Planned presentation context | Recognizable south-pole atlas framing and PSR/slope context | Referenced in dashboard source ledger | Label candidate zones using named features/PSR context |
-| USGS ISIS | Roadmap documented | Professional planetary image processing stack | `docs/USGS_ISIS_PRODUCTION_PATH.md` | Create optional ISIS/QGIS processing branch |
-
-## What We Should Say To Judges
-
-The MVP already uses official Chandrayaan-2 DFSAR, OHRC, and TMC-2 products downloaded from PRADAN and processed into radar-evidence, terrain-slope, and landing-accessibility layers. The external NASA/LPI/USGS sources are deliberately framed as validation and production-hardening paths, not falsely claimed as fully integrated data.
-
-## Current Prototype Formulas
-
-| Output | Formula / Method | Scientific Caution |
-| --- | --- | --- |
-| SAR candidate evidence | `0.50 * co-pol brightness + 0.35 * cross/co ratio + 0.15 * HH/VV ratio` | Candidate evidence only; exact CPR/DOP validation is future work. |
-| Terrain accessibility | `0.75 * low-slope score + 0.25 * local-relief score` | Screening score, not certified landing safety. |
-| Cold-trap proxy | `0.65 * shadow persistence + 0.35 * inverse illumination` from low-sun hillshade sweeps | Must be validated against ephemeris-based PSR/illumination products. |
-| Computed traverse | A* over `1 + ((100 - accessibility) / 18) + (cold-trap / 90)` | Needs geodetic distance calibration and rover dynamics before mission use. |
-
-## Immediate Next Step
-
-The strongest next technical improvement is to validate the current illumination/cold-trap proxy against a trusted ephemeris-based product, because candidate ice is only persuasive if radar evidence is balanced against permanently shadowed terrain, slope safety, and rover power/thermal constraints.
-
-## External Validation Result
-
-NASA LRO/LOLA 1000 m south-pole products from PGDA were cropped to the Chandrayaan-2 TMC-2 AOI. The TMC-derived mean slope is `10.67 deg`; the LOLA mean slope is `11.63 deg`; the mean difference is `0.96 deg`. Because LOLA is much coarser than TMC-2, this is a regional sanity check rather than pixel-perfect validation, but it is strong evidence that the terrain pipeline is behaving credibly.
+1. Replace CPR/DOP proxy with exact CPR and DOP if supplied DFSAR crater data includes required polarimetric terms or MIDAS outputs.
+2. Register OHRC footprints against DFSAR/TMC-2 AOI.
+3. Add OHRC boulder/crater morphology extraction after registration.
+4. Recalibrate ice-volume scenarios after exact radar inversion.
+5. Use official supplied crater AOI to replace the current DSC-1 proxy geometry.

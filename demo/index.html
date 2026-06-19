@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lunar Ice Intelligence System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="mission-console">
+      <header class="masthead">
+        <div class="brand-lockup">
+          <div class="mission-mark">LI</div>
+          <div>
+            <h1>Lunar Ice Intelligence</h1>
+            <p>Problem Statement 8: Faustini-class DSC target, radar evidence, volume, and traverse planning</p>
+          </div>
+        </div>
+        <div class="mission-meta">
+          <span>Chandrayaan-2 DFSAR</span>
+          <span>TMC-2 DTM/Ortho</span>
+          <span>OHRC Context</span>
+          <span>Top 5 m Volume</span>
+        </div>
+      </header>
+
+      <section class="summary-strip" aria-label="Mission summary">
+        <article>
+          <span>AOI latitude span</span>
+          <strong>88.65S-81.50S</strong>
+        </article>
+        <article>
+          <span>Primary score</span>
+          <strong id="scoreValue">82</strong>
+        </article>
+        <article>
+          <span>DSC target</span>
+          <strong>DSC-1 Proxy</strong>
+        </article>
+        <article>
+          <span>Volume estimate</span>
+          <strong>21-106M m3</strong>
+        </article>
+      </section>
+
+      <section class="compliance-board" aria-label="Problem Statement 8 compliance">
+        <div class="section-title">
+          <span>Problem 8 Compliance Board</span>
+          <small>requirement-to-evidence mapping</small>
+        </div>
+        <div class="compliance-grid">
+          <article>
+            <span class="status-pill partial">threshold-ready</span>
+            <b>CPR & DOP radar gate</b>
+            <p>Dashboard exposes the required CPR &gt; 1 and DOP &lt; 0.13 logic. Current DFSAR rasters support proxy screening; exact CPR/DOP awaits calibrated phase/coherency products or official MIDAS output.</p>
+          </article>
+          <article>
+            <span class="status-pill active">mapped</span>
+            <b>Doubly shadowed crater target</b>
+            <p>DSC-1 is a Faustini-class proxy generated from cold-trap score, persistent shadow, inverse illumination, slope, and accessibility until the supplied crater AOI is released.</p>
+          </article>
+          <article>
+            <span class="status-pill active">estimated</span>
+            <b>Top 5 m ice volume</b>
+            <p>Scenario estimator reports 21.25M, 56.67M, and 106.26M m3 water-equivalent volumes for 3%, 8%, and 15% ice-fraction assumptions.</p>
+          </article>
+          <article>
+            <span class="status-pill active">solar-aware</span>
+            <b>Landing-to-science traverse</b>
+            <p>A* route now uses terrain accessibility, cold-trap interest, and low-illumination solar-power penalty, reporting a 13.6 km screening traverse and low-power path exposure.</p>
+          </article>
+          <article>
+            <span class="status-pill active">filtered</span>
+            <b>Rough terrain rejection</b>
+            <p>Mentor-aligned morphology screen rejects steep, low-access, radar-bright rocky terrain before ranking DSC-1 as a candidate excavation target.</p>
+          </article>
+          <article>
+            <span class="status-pill partial">pending</span>
+            <b>OHRC hazard morphology</b>
+            <p>OHRC strips are retained as high-resolution context. Boulder/crater hazard extraction stays pending until footprint registration confirms overlap with the DFSAR/TMC-2 AOI.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="judge-demo" id="judgeDemo" aria-label="Judge demo mode">
+        <div class="judge-copy">
+          <span class="eyebrow">Judge demo mode</span>
+          <h2 id="demoStepTitle">Guided finalist walkthrough</h2>
+          <p id="demoStepCopy">
+            Step through the mission story from uncertainty to a ranked landing-and-traverse recommendation.
+          </p>
+        </div>
+        <div class="judge-controls">
+          <button type="button" class="demo-button primary" id="startDemo">Start Demo</button>
+          <button type="button" class="demo-button" id="prevDemo">Previous</button>
+          <button type="button" class="demo-button" id="nextDemo">Next</button>
+          <span id="demoStepCounter">0 / 11</span>
+        </div>
+        <div class="demo-progress" id="demoProgress"></div>
+      </section>
+
+      <section class="workspace-grid">
+        <aside class="left-rail" aria-label="Layer controls">
+          <section class="rail-section">
+            <div class="section-title">
+              <span>Layer Stack</span>
+              <small>Real downloaded products</small>
+            </div>
+            <div class="layer-list" id="layerList"></div>
+          </section>
+
+          <section class="rail-section">
+            <div class="section-title">
+              <span>Fusion Weights</span>
+              <small>Prototype ranking model</small>
+            </div>
+            <div class="weight-stack">
+              <label><span>Radar evidence</span><meter min="0" max="100" value="42"></meter><b>42%</b></label>
+              <label><span>Terrain safety</span><meter min="0" max="100" value="28"></meter><b>28%</b></label>
+              <label><span>Illumination proxy</span><meter min="0" max="100" value="18"></meter><b>18%</b></label>
+              <label><span>Optical hazards</span><meter min="0" max="100" value="12"></meter><b>12%</b></label>
+            </div>
+          </section>
+        </aside>
+
+        <section class="map-workbench">
+          <div class="map-toolbar">
+            <div>
+              <span class="eyebrow">Evidence viewport</span>
+              <h2 id="layerTitle">SAR Candidate Ice Evidence</h2>
+            </div>
+            <div class="tool-cluster">
+              <button type="button" class="tool-button active" data-view="focus">Focus</button>
+              <button type="button" class="tool-button" data-view="fusion">Fusion</button>
+              <button type="button" class="tool-button" data-view="raw">Raw</button>
+            </div>
+          </div>
+
+          <div class="map-frame">
+            <img id="mainLayer" alt="Selected lunar evidence layer" />
+            <div class="map-grid"></div>
+            <div class="north-indicator">S</div>
+          </div>
+
+          <div class="layer-note" id="layerDescription"></div>
+        </section>
+
+        <aside class="right-rail" aria-label="Analysis">
+          <section class="rail-section selected-candidate">
+            <div class="section-title">
+              <span>Selected Plan</span>
+              <small id="planSubtitle">landing to science target</small>
+            </div>
+            <h3 id="planTitle">Ridge-Safe Traverse A</h3>
+            <dl id="planMetrics"></dl>
+          </section>
+
+          <section class="rail-section">
+            <div class="section-title">
+              <span>Confidence</span>
+              <small id="confidenceSubtitle">not confirmed ice</small>
+            </div>
+            <div class="confidence-ring" id="confidenceRing">
+              <div><strong id="confidenceValue">74</strong><span id="confidenceLabel">evidence confidence</span></div>
+            </div>
+            <p class="quiet-copy" id="confidenceCopy">
+              Radar-bright and terrain-accessible zones are ranked as candidate volatile targets. Confirmation requires calibrated polarimetric interpretation and thermal/illumination validation.
+            </p>
+          </section>
+
+          <section class="rail-section">
+            <div class="section-title">
+              <span>Traverse Profile</span>
+              <small id="profileSubtitle">screening output</small>
+            </div>
+            <div class="profile-chart" id="profileChart" aria-hidden="true"></div>
+          </section>
+        </aside>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="analysis-card">
+          <div class="section-title">
+            <span>Candidate Ranking</span>
+            <small>top screened sites</small>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Site</th>
+                <th>Ice evidence</th>
+                <th>Slope risk</th>
+                <th>Traverse cost</th>
+                <th>Decision</th>
+              </tr>
+            </thead>
+            <tbody id="candidateRows"></tbody>
+          </table>
+        </article>
+
+        <article class="analysis-card">
+          <div class="section-title">
+            <span>Processing Chain</span>
+            <small>auditable steps</small>
+          </div>
+            <div class="pipeline" id="pipelineSteps"></div>
+        </article>
+
+        <article class="analysis-card">
+          <div class="section-title">
+            <span>Data Integrity</span>
+            <small>current workspace</small>
+          </div>
+          <ul class="integrity-list">
+            <li><b>DFSAR:</b> calibrated FP south-pole product processed into SAR evidence.</li>
+            <li><b>TMC-2:</b> valid south-pole DTM extracted; full ortho kept zipped to save disk.</li>
+            <li><b>Illumination:</b> low-sun hillshade proxy generated from the south-pole DTM.</li>
+            <li><b>OHRC:</b> visual hazard context retained until exact AOI overlap is verified.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="honesty-panel" aria-label="Limitations and scientific honesty">
+        <div class="section-title">
+          <span>Limitations & Scientific Honesty</span>
+          <small>judge-trust guardrails</small>
+        </div>
+        <div class="honesty-grid">
+          <article>
+            <b>Candidate ice, not confirmed ice</b>
+            <p>SAR-bright and polarimetric patterns are treated as evidence-consistent targets. They do not confirm water ice without calibrated CPR/DOP and external validation.</p>
+          </article>
+          <article>
+            <b>LOLA is coarse validation</b>
+            <p>NASA LRO/LOLA at 1000 m/pixel is used as a regional sanity check for terrain behavior, not meter-scale landing hazard certification.</p>
+          </article>
+          <article>
+            <b>Cold-trap proxy needs ephemeris validation</b>
+            <p>Low-sun hillshade simulations help screen plausible cold traps, but final PSR and illumination claims need ephemeris-grade polar illumination products.</p>
+          </article>
+          <article>
+            <b>OHRC overlap needs footprint registration</b>
+            <p>OHRC strips are high-resolution visual context until exact footprint registration confirms overlap with the selected DFSAR/TMC-2 AOI.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="methodology-ledger">
+        <article class="method-card">
+          <div class="section-title">
+            <span>Scoring Methodology</span>
+            <small>transparent prototype formulas</small>
+          </div>
+          <div class="method-grid" id="methodGrid"></div>
+        </article>
+
+        <article class="method-card">
+          <div class="section-title">
+            <span>Product Provenance</span>
+            <small>downloaded Chandrayaan-2 files</small>
+          </div>
+          <div class="provenance-list" id="provenanceRows"></div>
+        </article>
+      </section>
+
+      <section class="source-ledger">
+        <div class="section-title">
+          <span>Source-to-Evidence Ledger</span>
+          <small>what each external source contributes</small>
+        </div>
+        <div class="source-grid" id="sourceGrid"></div>
+      </section>
+    </main>
+    <script src="app.js?v=20260619-mentor-alignment"></script>
+  </body>
+</html>

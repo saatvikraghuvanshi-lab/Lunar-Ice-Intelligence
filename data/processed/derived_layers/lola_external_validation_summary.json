@@ -1,0 +1,28 @@
+{
+  "source": "NASA PGDA / LRO LOLA south-pole products",
+  "source_url": "https://pgda.gsfc.nasa.gov/products/90",
+  "aoi_bounds_m": [
+    -156232.75,
+    40890.265625,
+    -362.75,
+    205660.265625
+  ],
+  "crop_shape": [
+    165,
+    156
+  ],
+  "tmc_slope_mean_deg": 10.670783996582031,
+  "lola_slope_mean_deg": 11.629034042358398,
+  "mean_slope_difference_deg": 0.9582500457763672,
+  "agreement_label": "strong sanity check",
+  "outputs": {
+    "lola_slope_png": "data\\processed\\derived_layers\\lola_tmc_aoi_slope_1000m.png",
+    "lola_roughness_png": "data\\processed\\derived_layers\\lola_tmc_aoi_roughness_1000m.png",
+    "lola_class_png": "data\\processed\\derived_layers\\lola_tmc_aoi_class_1000m.png",
+    "focus_asset": "data\\processed\\demo_assets\\lola_validation_focus.png"
+  },
+  "notes": [
+    "LOLA products are 1000 m/pixel, much coarser than the TMC-2 DTM-derived layers.",
+    "This validates regional terrain behavior, not exact meter-scale hazards."
+  ]
+}

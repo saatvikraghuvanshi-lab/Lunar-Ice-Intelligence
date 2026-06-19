@@ -1,0 +1,17 @@
+{
+  "framing": "Prototype morphology/roughness screen for rejecting rough-terrain radar false positives.",
+  "inputs": [
+    "data\\processed\\derived_layers\\tmc2_south_pole_slope_deg.tif",
+    "data\\processed\\derived_layers\\tmc2_south_pole_accessibility_score.tif",
+    "data\\processed\\derived_layers\\sar_candidate_ice_evidence_score.tif",
+    "data\\processed\\derived_layers\\cold_trap_proxy.tif"
+  ],
+  "formula": "0.55*slope + 0.25*(1-accessibility) + 0.20*abs(SAR-cold_trap)",
+  "high_rough_pixel_pct": 16.000027418199515,
+  "candidate_after_rejection_pct": 12.00005483639903,
+  "outputs": {
+    "rough_png": "data\\processed\\derived_layers\\rough_terrain_rejection_mask.png",
+    "focus": "data\\processed\\demo_assets\\rough_terrain_filter_focus.png"
+  },
+  "caution": "This is a terrain-morphology proxy. Registered OHRC boulder/crater extraction is still required for final hazard certification."
+}

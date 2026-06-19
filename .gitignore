@@ -1,0 +1,76 @@
+# Local runtimes and dependency folders
+.venv/
+venv/
+node_modules/
+web/node_modules/
+
+# Framework/build outputs
+.next/
+web/.next/
+web/out/
+web/build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+.vercel/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Temporary and generated working files
+tmp/
+__pycache__/
+*.py[cod]
+*.tmp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Large raw science archives and extracted rasters
+data/raw/
+data/processed/extracted_minimal/
+data/processed/extracted_tmc2_south_pole/
+data/processed/external/
+data/raw_external/
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# Large geospatial rasters stay out of git unless explicitly whitelisted below.
+*.tif
+*.tiff
+*.img
+*.cub
+
+# Keep small, demo-ready derived artifacts and manifests.
+!data/processed/demo_assets/
+!data/processed/demo_assets/**
+!data/processed/derived_layers/*.png
+!data/processed/derived_layers/*.json
+!data/processed/quicklooks/
+!data/processed/quicklooks/**
+
+# Keep project documentation PDFs under output/pdf, but avoid duplicate scratch exports.
+/*.pdf
+!output/pdf/*.pdf
+output/rendered/
