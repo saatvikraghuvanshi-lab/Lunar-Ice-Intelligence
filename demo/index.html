@@ -43,16 +43,22 @@
         </article>
       </section>
 
-      <section class="compliance-board" aria-label="Problem Statement 8 compliance">
+      <nav class="page-tabs" aria-label="Dashboard pages">
+        <button type="button" class="page-tab active" data-page-target="mission">Mission Console</button>
+        <button type="button" class="page-tab" data-page-target="requirements">Requirement Readiness</button>
+        <button type="button" class="page-tab" data-page-target="details">Evidence Ledger</button>
+      </nav>
+
+      <section class="compliance-board detail-page" data-page="requirements" aria-label="Problem Statement 8 compliance">
         <div class="section-title">
           <span>Problem 8 Compliance Board</span>
           <small>requirement-to-evidence mapping</small>
         </div>
         <div class="compliance-grid">
           <article>
-            <span class="status-pill partial">threshold-ready</span>
+            <span class="status-pill partial">audited</span>
             <b>CPR & DOP radar gate</b>
-            <p>Dashboard exposes the required CPR &gt; 1 and DOP &lt; 0.13 logic. Current DFSAR rasters support proxy screening; exact CPR/DOP awaits calibrated phase/coherency products or official MIDAS output.</p>
+            <p>Dashboard exposes the required CPR &gt; 1 and DOP &lt; 0.13 logic. The DFSAR audit found HH/HV/VH/VV and phase metadata, but no exact CPR/DOP/Stokes/coherency product files in the extracted package.</p>
           </article>
           <article>
             <span class="status-pill active">mapped</span>
@@ -75,14 +81,14 @@
             <p>Mentor-aligned morphology screen rejects steep, low-access, radar-bright rocky terrain before ranking DSC-1 as a candidate excavation target.</p>
           </article>
           <article>
-            <span class="status-pill partial">pending</span>
+            <span class="status-pill partial">browse proxy</span>
             <b>OHRC hazard morphology</b>
-            <p>OHRC strips are retained as high-resolution context. Boulder/crater hazard extraction stays pending until footprint registration confirms overlap with the DFSAR/TMC-2 AOI.</p>
+            <p>OHRC per-pixel geometry is audited and browse-scale crater/boulder candidates are extracted. Final certification still needs full-resolution map-projected registration to the official supplied crater AOI.</p>
           </article>
         </div>
       </section>
 
-      <section class="judge-demo" id="judgeDemo" aria-label="Judge demo mode">
+      <section class="judge-demo detail-page active" data-page="mission" id="judgeDemo" aria-label="Judge demo mode">
         <div class="judge-copy">
           <span class="eyebrow">Judge demo mode</span>
           <h2 id="demoStepTitle">Guided finalist walkthrough</h2>
@@ -94,12 +100,12 @@
           <button type="button" class="demo-button primary" id="startDemo">Start Demo</button>
           <button type="button" class="demo-button" id="prevDemo">Previous</button>
           <button type="button" class="demo-button" id="nextDemo">Next</button>
-          <span id="demoStepCounter">0 / 11</span>
+          <span id="demoStepCounter">0 / 13</span>
         </div>
         <div class="demo-progress" id="demoProgress"></div>
       </section>
 
-      <section class="workspace-grid">
+      <section class="workspace-grid detail-page active" data-page="mission">
         <aside class="left-rail" aria-label="Layer controls">
           <section class="rail-section">
             <div class="section-title">
@@ -178,7 +184,7 @@
         </aside>
       </section>
 
-      <section class="bottom-grid">
+      <section class="bottom-grid detail-page" data-page="details">
         <article class="analysis-card">
           <div class="section-title">
             <span>Candidate Ranking</span>
@@ -215,12 +221,12 @@
             <li><b>DFSAR:</b> calibrated FP south-pole product processed into SAR evidence.</li>
             <li><b>TMC-2:</b> valid south-pole DTM extracted; full ortho kept zipped to save disk.</li>
             <li><b>Illumination:</b> low-sun hillshade proxy generated from the south-pole DTM.</li>
-            <li><b>OHRC:</b> visual hazard context retained until exact AOI overlap is verified.</li>
+            <li><b>OHRC:</b> geometry CSVs audited; browse-scale crater/boulder candidates extracted while exact AOI overlap remains pending.</li>
           </ul>
         </article>
       </section>
 
-      <section class="honesty-panel" aria-label="Limitations and scientific honesty">
+      <section class="honesty-panel detail-page" data-page="requirements" aria-label="Limitations and scientific honesty">
         <div class="section-title">
           <span>Limitations & Scientific Honesty</span>
           <small>judge-trust guardrails</small>
@@ -245,7 +251,7 @@
         </div>
       </section>
 
-      <section class="methodology-ledger">
+      <section class="methodology-ledger detail-page" data-page="details">
         <article class="method-card">
           <div class="section-title">
             <span>Scoring Methodology</span>
@@ -263,7 +269,7 @@
         </article>
       </section>
 
-      <section class="source-ledger">
+      <section class="source-ledger detail-page" data-page="details">
         <div class="section-title">
           <span>Source-to-Evidence Ledger</span>
           <small>what each external source contributes</small>
@@ -271,6 +277,6 @@
         <div class="source-grid" id="sourceGrid"></div>
       </section>
     </main>
-    <script src="app.js?v=20260619-mentor-alignment"></script>
+    <script src="app.js?v=20260620-science-readiness"></script>
   </body>
 </html>

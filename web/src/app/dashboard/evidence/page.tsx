@@ -5,6 +5,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const evidenceConsoleUrl = "http://localhost:8765/demo/index.html";
+const evidencePages = [
+  ["Mission", `${evidenceConsoleUrl}?page=mission`],
+  ["Requirements", `${evidenceConsoleUrl}?page=requirements`],
+  ["Evidence Ledger", `${evidenceConsoleUrl}?page=details`],
+] as const;
 
 export default function EvidenceConsolePage() {
   return (
@@ -27,21 +32,34 @@ export default function EvidenceConsolePage() {
             </h1>
           </div>
         </div>
-        <a
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-          href={evidenceConsoleUrl}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open original
-          <ExternalLink className="size-4" />
-        </a>
+        <div className="flex flex-wrap items-center gap-2">
+          {evidencePages.map(([label, href]) => (
+            <a
+              key={label}
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+              href={href}
+              target="evidenceFrame"
+            >
+              {label}
+            </a>
+          ))}
+          <a
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+            href={evidenceConsoleUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open original
+            <ExternalLink className="size-4" />
+          </a>
+        </div>
       </header>
 
       <section className="min-h-0 bg-black">
         <iframe
+          name="evidenceFrame"
           title="Existing evidence dashboard demo"
-          src={evidenceConsoleUrl}
+          src={`${evidenceConsoleUrl}?page=mission`}
           className="h-full min-h-[calc(100vh-65px)] w-full border-0"
         />
       </section>

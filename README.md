@@ -2,7 +2,7 @@
 
 Mission-planning prototype for **Problem Statement 8: Detection and Characterization of Subsurface Ice in Lunar South Polar Regions Using Chandrayaan-2 Radar and Imagery Data for Landing Site and Rover Traverse Planning**.
 
-The system fuses Chandrayaan-2 DFSAR radar evidence, TMC-2 terrain products, OHRC context, illumination/cold-trap proxies, NASA LOLA validation, rough-terrain rejection, solar-aware A* routing, and top-5m ice-volume scenarios.
+The system fuses Chandrayaan-2 DFSAR radar evidence, TMC-2 terrain products, OHRC footprint/hazard-readiness outputs, illumination/cold-trap proxies, NASA LOLA validation, rough-terrain rejection, solar-aware A* routing, and top-5m ice-volume scenarios.
 
 ## Current Scientific Claim
 
@@ -13,7 +13,9 @@ It provides an auditable screening and mission-planning workflow for ranking can
 ## What The Demo Shows
 
 - CPR/DOP threshold gate: `CPR > 1` and `DOP < 0.13` are explicit.
+- DFSAR polarimetry audit: four linear polarizations and phase metadata are present; exact CPR/DOP products are not present in the current extracted package.
 - DSC-1 / Faustini-class doubly shadowed crater proxy target.
+- OHRC footprint audit and browse-scale crater/boulder hazard candidates.
 - Rough-terrain false-positive rejection before candidate ranking.
 - TMC-2 slope/accessibility terrain safety.
 - NASA LRO/LOLA coarse validation.
@@ -70,7 +72,7 @@ See [data/DATA_MANIFEST.md](data/DATA_MANIFEST.md) for the local raw-data layout
 ## Remaining High-Priority Work
 
 1. Replace CPR/DOP proxy with exact CPR and DOP if supplied DFSAR crater data includes required polarimetric terms or MIDAS outputs.
-2. Register OHRC footprints against DFSAR/TMC-2 AOI.
-3. Add OHRC boulder/crater morphology extraction after registration.
+2. Replace DSC-1 proxy with the official supplied crater AOI.
+3. Map-project OHRC footprints against the official AOI and upgrade browse-scale hazard candidates to full-resolution registered extraction.
 4. Recalibrate ice-volume scenarios after exact radar inversion.
 5. Use official supplied crater AOI to replace the current DSC-1 proxy geometry.

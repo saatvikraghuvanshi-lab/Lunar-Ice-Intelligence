@@ -139,6 +139,33 @@ h1 {
   color: #f6fbfc;
 }
 
+.page-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--line);
+  background: #080d11;
+}
+
+.page-tab {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 10px 13px;
+  cursor: pointer;
+}
+
+.page-tab.active {
+  border-color: rgba(49, 214, 204, 0.55);
+  background: var(--cyan-soft);
+  color: var(--text);
+}
+
+.detail-page:not(.active) {
+  display: none !important;
+}
+
 .compliance-board {
   border-bottom: 1px solid var(--line);
   background:
@@ -209,7 +236,7 @@ h1 {
   background: #081116;
 }
 
-.judge-demo.active {
+.judge-demo.demo-running {
   background: linear-gradient(90deg, rgba(49, 214, 204, 0.12), #081116 58%);
 }
 

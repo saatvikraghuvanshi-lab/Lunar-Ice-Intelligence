@@ -1,4 +1,5 @@
-const assetVersion = "20260619-mentor-alignment";
+const assetVersion = "20260620-science-readiness";
+const demoStateKey = "lunarIceJudgeDemoState";
 
 const layers = [
   {
@@ -22,6 +23,17 @@ const layers = [
     description:
       "Problem Statement 8 threshold view: CPR > 1 and DOP < 0.13 are shown explicitly. Current output is a CPR/DOP-ready proxy because exact CPR/DOP needs calibrated phase/coherency-aware polarimetric products.",
     score: 72,
+  },
+  {
+    id: "dfsar-audit",
+    name: "DFSAR Polarimetry Audit",
+    source: "PDS4 labels + extracted DFSAR products",
+    focusPath: "../data/processed/demo_assets/dfsar_polarimetry_audit_focus.png",
+    rawPath: "../data/processed/demo_assets/dfsar_polarimetry_audit_focus.png",
+    thumbnail: "../data/processed/demo_assets/dfsar_polarimetry_audit_focus.png",
+    description:
+      "Audits the current DFSAR package for exact CPR/DOP readiness. Four linear polarizations and phase-orthogonality metadata are present, but no CPR, DOP, Stokes, coherency, covariance, or circular-pol product files were found in the extracted set.",
+    score: 76,
   },
   {
     id: "dsc-target",
@@ -177,6 +189,28 @@ const layers = [
       "Second OHRC strip for visual comparison and local hazard explanation. Exact overlap with the TMC/DFSAR AOI still needs registration.",
     score: 66,
   },
+  {
+    id: "ohr-footprint",
+    name: "OHRC Footprint Registration",
+    source: "OHRC per-pixel geometry CSV",
+    focusPath: "../data/processed/demo_assets/ohrc_footprint_registration_focus.png",
+    rawPath: "../data/processed/demo_assets/ohrc_footprint_registration_focus.png",
+    thumbnail: "../data/processed/demo_assets/ohrc_footprint_registration_focus.png",
+    description:
+      "Footprint audit from OHRC per-pixel selenographic geometry. Both downloaded OHRC strips overlap the regional TMC-2 latitude span; exact map-projected AOI registration against the official supplied crater remains the next step.",
+    score: 71,
+  },
+  {
+    id: "ohr-hazards",
+    name: "OHRC Hazard Extraction",
+    source: "browse-scale crater/boulder candidates",
+    focusPath: "../data/processed/demo_assets/ohrc_hazard_extraction_focus.png",
+    rawPath: "../data/processed/demo_assets/ohrc_hazard_extraction_focus.png",
+    thumbnail: "../data/processed/demo_assets/ohrc_hazard_extraction_focus.png",
+    description:
+      "Browse-scale OHRC contrast and gradient ranking marks crater/boulder candidate zones for inspection. This is not full-resolution hazard certification, but it moves OHRC beyond passive context.",
+    score: 73,
+  },
 ];
 
 const fusionPath = "../data/processed/demo_assets/fusion_board.png";
@@ -230,6 +264,12 @@ const sources = [
     contribution: "Requirements now mapped into dashboard layers: CPR/DOP gate, DSC-1 target proxy, rough-terrain rejection, solar-aware traverse, and top-5m volume scenarios.",
   },
   {
+    name: "OHRC Geometry CSVs",
+    status: "used",
+    url: "#",
+    contribution: "Per-pixel selenographic coordinates used for footprint readiness and regional overlap audit before full AOI registration.",
+  },
+  {
     name: "USGS ISIS",
     status: "roadmap",
     url: "https://isis.astrogeology.usgs.gov/",
@@ -267,6 +307,13 @@ const methods = [
     note: "Current output is threshold-ready proxy evidence because exact CPR/DOP requires calibrated phase/coherency-aware polarimetric processing.",
   },
   {
+    title: "DFSAR Readiness Audit",
+    inputs: ["PDS4 labels", "file scan"],
+    output: "CPR/DOP status",
+    formula: "present terms vs required products",
+    note: "Finds four linear polarizations and phase metadata, but no exact CPR/DOP/Stokes/coherency/covariance products in the current extracted package.",
+  },
+  {
     title: "DSC-1 Proxy Mask",
     inputs: ["cold", "shadow", "slope"],
     output: "Faustini-class target",
@@ -279,6 +326,13 @@ const methods = [
     output: "false-positive filter",
     formula: "0.55 slope + 0.25 low-access + 0.20 SAR/cold mismatch",
     note: "Mentor-aligned morphology proxy to avoid treating rough, radar-bright rocky terrain as candidate ice.",
+  },
+  {
+    title: "OHRC Hazard Proxy",
+    inputs: ["browse", "geometry"],
+    output: "inspection candidates",
+    formula: "contrast + gradient + content mask",
+    note: "Moves OHRC beyond context by marking crater/boulder candidate zones while keeping full-resolution registered hazard certification pending.",
   },
   {
     title: "Computed Traverse",
@@ -322,15 +376,22 @@ const provenance = [
     payload: "OHRC",
     product: "ch2_ohr_ncp_20260103T0609041371_d_img_d18.zip",
     date: "2026-01-03",
-    role: "High-resolution optical hazard-context strip.",
-    status: "context",
+    role: "High-resolution optical strip; geometry audited and browse-scale hazard candidates extracted.",
+    status: "audited",
   },
   {
     payload: "OHRC",
     product: "ch2_ohr_ncp_20260103T1005176450_d_img_d18.zip",
     date: "2026-01-03",
-    role: "Second optical hazard-context strip for comparison.",
-    status: "context",
+    role: "Second optical strip; geometry audited and browse-scale hazard candidates extracted.",
+    status: "audited",
+  },
+  {
+    payload: "DERIVED",
+    product: "dfsar_polarimetry_audit_summary + ohrc_registration_hazard_summary",
+    date: "2026-06-20",
+    role: "Readiness audits for exact CPR/DOP status, OHRC footprint registration, and browse-scale hazard morphology.",
+    status: "derived",
   },
   {
     payload: "DERIVED",
@@ -385,56 +446,70 @@ const demoSteps = [
     view: "focus",
   },
   {
-    title: "4. Doubly shadowed crater proxy: DSC-1",
+    title: "4. DFSAR audit: exact CPR/DOP readiness",
+    copy:
+      "The audit finds HH/HV/VH/VV and phase-orthogonality metadata, but no exact CPR, DOP, Stokes, coherency, covariance, or circular-pol product in the extracted package. This is why the demo is threshold-ready without overclaiming exact CPR/DOP.",
+    layerId: "dfsar-audit",
+    view: "focus",
+  },
+  {
+    title: "5. Doubly shadowed crater proxy: DSC-1",
     copy:
       "A Faustini-class DSC-1 target mask combines cold-trap score, shadow persistence, low illumination, slope, and accessibility. This gives the required crater-target framing while keeping the official-AOI caveat visible.",
     layerId: "dsc-target",
     view: "focus",
   },
   {
-    title: "5. Rough-terrain rejection: avoid rocky false positives",
+    title: "6. OHRC: footprint and hazard readiness",
+    copy:
+      "OHRC is no longer just a visual screenshot. The console audits per-pixel geometry and extracts browse-scale crater/boulder candidates, while clearly marking exact full-resolution AOI registration as the next validation step.",
+    layerId: "ohr-hazards",
+    view: "focus",
+  },
+  {
+    title: "7. Rough-terrain rejection: avoid rocky false positives",
     copy:
       "The mentor slides emphasize that radar-bright terrain can be rough rock, not ice. This filter rejects steep, low-access, SAR/cold-inconsistent regions and keeps lobate-rim morphology as a candidate cue rather than a confirmed ice claim.",
     layerId: "rough-filter",
     view: "focus",
   },
   {
-    title: "6. TMC-2: terrain and slope safety",
+    title: "8. TMC-2: terrain and slope safety",
     copy:
       "A science target is not useful if the lander or rover cannot reach it. TMC-2 DTM products provide slope, relief, and accessibility screening.",
     layerId: "tmc-access",
     view: "focus",
   },
   {
-    title: "7. NASA LOLA: external terrain validation",
+    title: "9. NASA LOLA: external terrain validation",
     copy:
       "Before trusting the terrain route, we cross-check the TMC-derived slope against independent LRO/LOLA south-pole products. The regional mean slope differs by only 0.96 degrees.",
     layerId: "lola-validation",
     view: "focus",
   },
   {
-    title: "8. Cold-trap proxy: volatile plausibility",
+    title: "10. Cold-trap proxy: volatile plausibility",
     copy:
       "Low-sun hillshade sweeps from the TMC-2 DTM create a cold-trap proxy. This adds PSR-style plausibility while clearly marking the need for external validation.",
     layerId: "cold-trap",
     view: "focus",
   },
   {
-    title: "9. Solar-aware A* traverse",
+    title: "11. Solar-aware A* traverse",
     copy:
       "The route is computed over accessibility, cold-trap, and low-illumination penalty layers inside a connected valid-data island, producing a defensible LZ-A to SCI-B screening traverse.",
     layerId: "traverse-route",
     view: "focus",
   },
   {
-    title: "10. Top 5 m volume estimate",
+    title: "12. Top 5 m volume estimate",
     copy:
       "The required volume estimate is now represented as a scenario model: candidate area times 5 m depth times assumed ice fraction. It is useful for ISRU planning but not a confirmed reserve measurement.",
     layerId: "ice-volume",
     view: "focus",
   },
   {
-    title: "11. Recommendation: land, traverse, excavate",
+    title: "13. Recommendation: land, traverse, excavate",
     copy:
       "The recommendation is to use LZ-A as the safer terrain gate, traverse to SCI-B/DSC-1, and treat the target as a candidate excavation/drilling zone until exact CPR/DOP and ephemeris illumination validation are complete.",
     layerId: "traverse-route",
@@ -489,6 +564,29 @@ const layerAnalytics = {
     ],
     pipeline: ["HH/HV/VH/VV", "ratio proxy", "CPR > 1 gate", "DOP < 0.13 gate", "candidate"],
   },
+  "dfsar-audit": {
+    planTitle: "DFSAR Polarimetry Readiness",
+    planSubtitle: "metadata audit",
+    confidence: 76,
+    confidenceLabel: "audit confidence",
+    confidenceSubtitle: "exact products missing",
+    confidenceCopy:
+      "The downloaded DFSAR package is scientifically useful, but exact CPR/DOP should wait for circular-pol, Stokes, coherency, covariance, or official MIDAS outputs. The audit found four linear polarizations and 16 phase-orthogonality metadata values.",
+    profileSubtitle: "product readiness",
+    profile: [100, 100, 100, 100, 64, 38, 0, 0, 0, 0],
+    planMetrics: [
+      ["Polarizations", "4"],
+      ["Phase terms", "16"],
+      ["Exact CPR/DOP files", "0"],
+      ["Claim level", "audited proxy"],
+    ],
+    candidates: [
+      ["HH/HV/VH/VV", "1.00", "0.00", "0.10", "Present", "good"],
+      ["phase metadata", "0.76", "0.00", "0.20", "Present", "good"],
+      ["CPR/DOP product", "0.00", "0.00", "1.00", "Pending", "warn"],
+    ],
+    pipeline: ["PDS4 labels", "polarization scan", "phase audit", "missing products", "honest gate"],
+  },
   "dsc-target": {
     planTitle: "Faustini-Class DSC-1 Target",
     planSubtitle: "doubly shadowed crater proxy",
@@ -534,6 +632,52 @@ const layerAnalytics = {
       ["LZ-A corridor", "0.52", "0.14", "0.24", "Safe", "good"],
     ],
     pipeline: ["slope", "access", "SAR/cold", "rough reject", "candidate"],
+  },
+  "ohr-footprint": {
+    planTitle: "OHRC Footprint Registration Audit",
+    planSubtitle: "geometry-ready",
+    confidence: 71,
+    confidenceLabel: "registration readiness",
+    confidenceSubtitle: "regional overlap",
+    confidenceCopy:
+      "Both OHRC geometry CSVs contain per-pixel selenographic coordinates and overlap the TMC-2 south-pole latitude span. Exact crater-AOI registration still needs map-projected footprint intersection against the official supplied crater.",
+    profileSubtitle: "footprint readiness",
+    profile: [82, 86, 88, 91, 72, 54, 38, 31, 24, 18],
+    planMetrics: [
+      ["OHRC strips", "2"],
+      ["Geometry records", "244,904"],
+      ["Latitude overlap", "yes"],
+      ["AOI status", "pending"],
+    ],
+    candidates: [
+      ["OHRC-A", "0.71", "0.18", "0.41", "Register", "warn"],
+      ["OHRC-B", "0.70", "0.18", "0.42", "Register", "warn"],
+      ["Official AOI", "0.00", "0.00", "1.00", "Needed", "warn"],
+    ],
+    pipeline: ["geometry CSV", "lat/lon bounds", "TMC span", "regional overlap", "AOI pending"],
+  },
+  "ohr-hazards": {
+    planTitle: "OHRC Hazard Candidate Extraction",
+    planSubtitle: "browse-scale morphology",
+    confidence: 73,
+    confidenceLabel: "hazard proxy",
+    confidenceSubtitle: "needs full-res AOI",
+    confidenceCopy:
+      "Contrast and gradient ranking marks crater/boulder candidate zones on the OHRC browse strips. It is a useful inspection layer, but final landing-hazard certification needs full-resolution registered OHRC footprints.",
+    profileSubtitle: "candidate clusters",
+    profile: [58, 66, 74, 82, 77, 64, 71, 69, 55, 48],
+    planMetrics: [
+      ["OHRC-A hazards", "12"],
+      ["OHRC-B hazards", "11"],
+      ["Mode", "browse proxy"],
+      ["Full-res status", "pending"],
+    ],
+    candidates: [
+      ["OHRC-A strip", "0.73", "0.28", "0.39", "Inspect", "good"],
+      ["OHRC-B strip", "0.71", "0.31", "0.42", "Inspect", "good"],
+      ["SCI-B AOI", "0.00", "0.00", "1.00", "Register", "warn"],
+    ],
+    pipeline: ["OHRC browse", "content crop", "contrast/gradient", "candidate marks", "hazard proxy"],
   },
   "ice-volume": {
     planTitle: "Top 5 m Volume Scenario",
@@ -842,10 +986,42 @@ const profileSubtitle = document.querySelector("#profileSubtitle");
 const profileChart = document.querySelector("#profileChart");
 const candidateRows = document.querySelector("#candidateRows");
 const pipelineSteps = document.querySelector("#pipelineSteps");
+const pageTabs = document.querySelectorAll(".page-tab");
+const detailPages = document.querySelectorAll(".detail-page");
 
 let selectedLayer = layers[0];
 let viewMode = "focus";
 let demoIndex = -1;
+let activeDetailPage = "mission";
+
+function saveDemoState() {
+  const state = JSON.stringify({
+    demoIndex,
+    layerId: selectedLayer.id,
+    viewMode,
+    detailPage: activeDetailPage,
+  });
+  try {
+    localStorage.setItem(demoStateKey, state);
+    sessionStorage.setItem(demoStateKey, state);
+  } catch {
+    // Storage can be unavailable in some embedded/browser privacy modes.
+  }
+}
+
+function readDemoState() {
+  try {
+    return JSON.parse(localStorage.getItem(demoStateKey) || sessionStorage.getItem(demoStateKey) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function requestedPage() {
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get("page");
+  return ["mission", "requirements", "details"].includes(page) ? page : null;
+}
 
 function currentImagePath(layer) {
   if (viewMode === "fusion") return fusionPath;
@@ -911,6 +1087,7 @@ function setViewMode(mode) {
     button.classList.toggle("active", button.dataset.view === mode);
   });
   selectLayer(selectedLayer);
+  saveDemoState();
 }
 
 function layerById(id) {
@@ -919,7 +1096,7 @@ function layerById(id) {
 
 function renderDemoState() {
   const active = demoIndex >= 0;
-  judgeDemo.classList.toggle("active", active);
+  judgeDemo.classList.toggle("demo-running", active);
   prevDemo.disabled = !active || demoIndex === 0;
   nextDemo.disabled = !active || demoIndex === demoSteps.length - 1;
   startDemo.textContent = active ? "Restart Demo" : "Start Demo";
@@ -941,7 +1118,8 @@ function renderDemoState() {
 }
 
 function goToDemoStep(index) {
-  demoIndex = Math.max(0, Math.min(index, demoSteps.length - 1));
+  const safeIndex = Number.isFinite(index) ? index : 0;
+  demoIndex = Math.max(0, Math.min(safeIndex, demoSteps.length - 1));
   const step = demoSteps[demoIndex];
   viewMode = step.view;
   viewButtons.forEach((button) => {
@@ -949,6 +1127,21 @@ function goToDemoStep(index) {
   });
   selectLayer(layerById(step.layerId));
   renderDemoState();
+  saveDemoState();
+}
+
+function setDetailPage(page) {
+  activeDetailPage = page;
+  pageTabs.forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.pageTarget === page);
+  });
+  detailPages.forEach((section) => {
+    section.classList.toggle("active", section.dataset.page === page);
+  });
+  const url = new URL(window.location.href);
+  url.searchParams.set("page", page);
+  window.history.replaceState({}, "", url);
+  saveDemoState();
 }
 
 layers.forEach((layer) => {
@@ -961,7 +1154,10 @@ layers.forEach((layer) => {
     <span><strong>${layer.name}</strong><span>${layer.source}</span></span>
     <b>${layer.score}</b>
   `;
-  button.addEventListener("click", () => selectLayer(layer));
+  button.addEventListener("click", () => {
+    selectLayer(layer);
+    saveDemoState();
+  });
   list.appendChild(button);
 });
 
@@ -980,6 +1176,10 @@ demoSteps.forEach((_, index) => {
 startDemo.addEventListener("click", () => goToDemoStep(0));
 prevDemo.addEventListener("click", () => goToDemoStep(demoIndex <= 0 ? 0 : demoIndex - 1));
 nextDemo.addEventListener("click", () => goToDemoStep(demoIndex < 0 ? 0 : demoIndex + 1));
+
+pageTabs.forEach((tab) => {
+  tab.addEventListener("click", () => setDetailPage(tab.dataset.pageTarget));
+});
 
 sources.forEach((source) => {
   const card = document.createElement("article");
@@ -1030,5 +1230,19 @@ provenanceRows.innerHTML = provenance
   )
   .join("");
 
-selectLayer(layers[0]);
-renderDemoState();
+const restoredState = readDemoState();
+activeDetailPage = requestedPage() || restoredState?.detailPage || "mission";
+
+if (restoredState?.viewMode) {
+  viewMode = restoredState.viewMode;
+}
+
+const restoredLayer = restoredState?.layerId ? layerById(restoredState.layerId) : layers[0];
+selectLayer(restoredLayer);
+setDetailPage(activeDetailPage);
+
+if (Number.isInteger(restoredState?.demoIndex) && restoredState.demoIndex >= 0) {
+  goToDemoStep(restoredState.demoIndex);
+} else {
+  renderDemoState();
+}
