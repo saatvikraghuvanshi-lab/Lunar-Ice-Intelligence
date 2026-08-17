@@ -32,10 +32,10 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-50">
+    <main className="min-h-screen bg-[#0f0e0e] px-6 py-10 text-white">
       <div className="mx-auto grid max-w-4xl gap-6">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="text-sm font-medium text-cyan-200">
+          <Link href="/" className="text-sm font-medium text-[#ff8a98]">
             Lunar Ice Intelligence
           </Link>
           <Link className={buttonVariants({ variant: "outline", size: "sm" })} href="/signup">
@@ -44,22 +44,22 @@ export default function TermsPage() {
         </div>
         <Card>
           <CardHeader>
-            <p className="text-sm uppercase tracking-normal text-cyan-200">
+            <p className="text-sm uppercase tracking-normal text-[#ff8a98]">
               Terms of Use
             </p>
             <CardTitle className="text-3xl">Clear rules for a scientific prototype</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-5">
-            <p className="leading-7 text-slate-300">
+            <p className="leading-7 text-white/70">
               Last updated: June 19, 2026. These terms are written for the
               hackathon prototype and should be reviewed by counsel before any
               public or production launch.
             </p>
             <div className="grid gap-4">
               {sections.map((section) => (
-                <section key={section.title} className="rounded-md border border-slate-800 bg-slate-900/50 p-4">
+                <section key={section.title} className="rounded-md border border-white/15 bg-white/[0.04] p-4">
                   <h2 className="font-semibold text-white">{section.title}</h2>
-                  <p className="mt-2 leading-7 text-slate-300">{section.copy}</p>
+                  <p className="mt-2 leading-7 text-white/70">{section.copy}</p>
                 </section>
               ))}
             </div>

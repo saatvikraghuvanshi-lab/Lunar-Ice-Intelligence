@@ -3,7 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  // PostgreSQL in production (Vercel + Supabase/Neon). Local dev uses the
+  // JSON user store (web/src/lib/user-store.ts) so no local database is needed.
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

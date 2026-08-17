@@ -34,12 +34,6 @@ export function AuthCard({ mode }: AuthCardProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-
-    if (!isSignup) {
-      router.push("/dashboard/evidence");
-      return;
-    }
-
     setLoading(true);
 
     const form = new FormData(event.currentTarget);
@@ -74,30 +68,26 @@ export function AuthCard({ mode }: AuthCardProps) {
   }
 
   return (
-    <Card className="w-full max-w-md border-slate-800 bg-slate-950/90 shadow-2xl shadow-cyan-950/20">
+    <Card className="w-full max-w-md border-white/15 bg-[#161316]/94 shadow-2xl shadow-[#fe2e4b]/10">
       <CardHeader>
-        <div className="mb-3 flex size-11 items-center justify-center rounded-md border border-cyan-300/40 bg-cyan-300/10 text-cyan-200">
+        <div className="mb-3 flex size-11 items-center justify-center rounded-md border border-[#fe2e4b]/55 bg-[#fe2e4b]/12 text-white shadow-lg shadow-[#fe2e4b]/10">
           <LockKeyhole className="size-5" />
         </div>
         <CardTitle>{isSignup ? "Create your mission account" : "Welcome back"}</CardTitle>
         <CardDescription>
           {isSignup
             ? "Save candidate AOIs, review judge-demo runs, and keep an audit trail for your team."
-            : "Temporary demo access is enabled: click Sign in to open the evidence console."}
+            : "Sign in to continue your mission workspace."}
         </CardDescription>
       </CardHeader>
-      <form
-        onSubmit={handleSubmit}
-        action={isSignup ? undefined : "/dashboard/evidence"}
-        method={isSignup ? undefined : "get"}
-      >
+      <form onSubmit={handleSubmit}>
         <CardContent className="grid gap-4">
           {isSignup ? (
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
               <div className="relative">
-                <UserRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
-                <Input id="name" name="name" autoComplete="name" className="pl-9" placeholder="Mission team lead" />
+                <UserRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/38" />
+                <Input id="name" name="name" autoComplete="name" autoFocus className="pl-9" placeholder="Mission team lead" />
               </div>
             </div>
           ) : null}
@@ -105,12 +95,13 @@ export function AuthCard({ mode }: AuthCardProps) {
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/38" />
               <Input
                 id="email"
                 name={isSignup ? "email" : undefined}
                 type="email"
                 autoComplete="email"
+                autoFocus={!isSignup}
                 className="pl-9"
                 placeholder="you@example.com"
               />
@@ -124,16 +115,17 @@ export function AuthCard({ mode }: AuthCardProps) {
               name={isSignup ? "password" : undefined}
               type="password"
               autoComplete={isSignup ? "new-password" : "current-password"}
+              minLength={isSignup ? 8 : undefined}
               placeholder={isSignup ? "At least 8 characters" : "Your password"}
             />
           </div>
 
           {isSignup ? (
-            <label className="flex items-start gap-3 rounded-md border border-slate-800 bg-slate-900/50 p-3 text-sm text-slate-300">
+            <label className="flex items-start gap-3 rounded-md border border-white/15 bg-white/[0.04] p-3 text-sm text-white/72">
               <Checkbox name="acceptedTerms" />
               <span>
                 I accept the{" "}
-                <Link href="/terms" className="text-cyan-200 underline-offset-4 hover:underline">
+                <Link href="/terms" className="text-[#ff8a98] underline-offset-4 hover:underline">
                   Terms of Use
                 </Link>{" "}
                 and understand this is a decision-support prototype, not a source of confirmed lunar ice claims.
@@ -142,7 +134,10 @@ export function AuthCard({ mode }: AuthCardProps) {
           ) : null}
 
           {error ? (
-            <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-100">
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-100"
+            >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -153,11 +148,11 @@ export function AuthCard({ mode }: AuthCardProps) {
             {loading ? "Working..." : isSignup ? "Create account" : "Sign in"}
             <ArrowRight />
           </Button>
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-sm text-white/58">
             {isSignup ? "Already have an account?" : "New to the workspace?"}{" "}
             <Link
               href={isSignup ? "/login" : "/signup"}
-              className="font-medium text-cyan-200 underline-offset-4 hover:underline"
+              className="font-medium text-[#ff8a98] underline-offset-4 hover:underline"
             >
               {isSignup ? "Sign in" : "Create account"}
             </Link>

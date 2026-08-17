@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored same-origin demo dashboard (static assets, not project code).
+    "public/**",
   ]),
 ]);
 

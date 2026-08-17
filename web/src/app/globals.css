@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #0f0e0e;
+  --foreground: #ffffff;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -18,20 +19,33 @@
 
 html {
   background: var(--background);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   min-height: 100vh;
   background:
-    linear-gradient(rgba(14, 165, 233, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14, 165, 233, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 34rem),
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(254, 46, 75, 0.18), transparent 34rem),
     var(--background);
   background-size: 64px 64px, 64px 64px, auto, auto;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 a {
   text-decoration: none;
+}
+
+/* Links are the only interactive elements without their own focus ring. */
+a:focus-visible {
+  outline: 2px solid #fe2e4b;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(254, 46, 75, 0.4);
+  color: #ffffff;
 }

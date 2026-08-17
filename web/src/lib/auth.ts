@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 import { createStoredSession, findUserBySessionToken } from "@/lib/user-store";
 
-const SESSION_COOKIE = "li_session";
+export const SESSION_COOKIE = "li_session";
 const SESSION_DAYS = 14;
 
 export async function hashPassword(password: string) {
