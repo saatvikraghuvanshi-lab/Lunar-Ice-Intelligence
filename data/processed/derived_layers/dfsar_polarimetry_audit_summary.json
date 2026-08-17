@@ -1,0 +1,96 @@
+{
+  "status": "threshold-ready audit complete; exact CPR/DOP not computed from current files",
+  "available_polarizations": 4,
+  "polarizations": [
+    "HH",
+    "HV",
+    "VH",
+    "VV"
+  ],
+  "phase_terms_found": 16,
+  "phase_orthogonality_range": [
+    -1.323794,
+    2.044474
+  ],
+  "exact_cpr_dop_product_files_found": [],
+  "current_limitation": "The extracted DFSAR rasters support HH/HV/VH/VV intensity-ratio proxy screening. Exact CPR and DOP should be generated from calibrated circular-pol, Stokes, coherency, covariance, or official MIDAS-style polarimetric outputs when supplied.",
+  "products": [
+    {
+      "file": "data\\processed\\extracted_minimal\\data\\calibrated\\20200913\\ch2_sar_ncxl_20200913t042439405_d_gri_xx_fp_xx_d18.xml",
+      "title": "Chandrayaan-2 Dual frequency L and S band SAR",
+      "start": "2020-09-13T04:24:39.405Z",
+      "stop": "2020-09-13T04:25:23.793Z",
+      "num_polarizations": "4",
+      "polarizations": [
+        "HH",
+        "HV",
+        "VH",
+        "VV"
+      ],
+      "phase_orthogonality": [
+        1.582084,
+        -1.070231,
+        2.044474,
+        -1.101204
+      ]
+    },
+    {
+      "file": "data\\processed\\extracted_minimal\\data\\calibrated\\20200913\\ch2_sar_ncxl_20200913t042439405_d_sri_xx_fp_xx_d18.xml",
+      "title": "Chandrayaan-2 Dual frequency L and S band SAR",
+      "start": "2020-09-13T04:24:39.405Z",
+      "stop": "2020-09-13T04:25:23.793Z",
+      "num_polarizations": "4",
+      "polarizations": [
+        "HH",
+        "HV",
+        "VH",
+        "VV"
+      ],
+      "phase_orthogonality": [
+        1.582084,
+        -1.070231,
+        2.044474,
+        -1.101204
+      ]
+    },
+    {
+      "file": "data\\processed\\extracted_minimal\\data\\calibrated\\20200913\\ch2_sar_ncxs_20200913t042439405_d_gri_xx_fp_xx_d18.xml",
+      "title": "Chandrayaan-2 Dual frequency L and S band SAR",
+      "start": "2020-09-13T04:24:39.405Z",
+      "stop": "2020-09-13T04:25:23.793Z",
+      "num_polarizations": "4",
+      "polarizations": [
+        "HH",
+        "HV",
+        "VH",
+        "VV"
+      ],
+      "phase_orthogonality": [
+        -0.16798,
+        1.385326,
+        -0.533697,
+        -1.323794
+      ]
+    },
+    {
+      "file": "data\\processed\\extracted_minimal\\data\\calibrated\\20200913\\ch2_sar_ncxs_20200913t042439405_d_sri_xx_fp_xx_d18.xml",
+      "title": "Chandrayaan-2 Dual frequency L and S band SAR",
+      "start": "2020-09-13T04:24:39.405Z",
+      "stop": "2020-09-13T04:25:23.793Z",
+      "num_polarizations": "4",
+      "polarizations": [
+        "HH",
+        "HV",
+        "VH",
+        "VV"
+      ],
+      "phase_orthogonality": [
+        -0.16798,
+        1.385326,
+        -0.533697,
+        -1.323794
+      ]
+    }
+  ],
+  "dashboard_image": "data\\processed\\demo_assets\\dfsar_polarimetry_audit_focus.png"
+}

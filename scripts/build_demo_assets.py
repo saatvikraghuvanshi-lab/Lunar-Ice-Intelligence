@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +38,16 @@ SOURCES = {
     / "quicklooks"
     / "ch2_ohr_ncp_20260103T1005176450_b_brw_d18_quicklook.png",
 }
+
+
+def font(size: int, bold: bool = False):
+    names = ["arialbd.ttf", "arial.ttf"] if bold else ["arial.ttf"]
+    for name in names:
+        try:
+            return ImageFont.truetype(name, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
 
 
 def find_content_bbox(img: Image.Image) -> tuple[int, int, int, int]:
@@ -89,6 +99,61 @@ def focus_image(src: Path, dest: Path, size: tuple[int, int] = (1440, 960)) -> N
     canvas.save(dest, quality=95)
 
 
+def make_ohr_focus(src: Path, dest: Path, label: str, size: tuple[int, int] = (1440, 960)) -> None:
+    img = Image.open(src).convert("RGB")
+    bbox = find_content_bbox(img)
+    content = img.crop(bbox)
+    # OHRC browse strips are very tall and narrow. Show a representative
+    # enlarged section instead of shrinking the whole strip into a speck.
+    section_h = min(content.height, max(1400, int(content.height * 0.28)))
+    y0 = max(0, int(content.height * 0.34) - section_h // 2)
+    section = content.crop((0, y0, content.width, min(content.height, y0 + section_h)))
+    section = ImageEnhance.Contrast(section).enhance(1.25)
+    section.thumbnail((410, 680), Image.Resampling.LANCZOS)
+
+    canvas = Image.new("RGB", size, (3, 6, 10))
+    draw = ImageDraw.Draw(canvas)
+    draw.rectangle((42, 42, 1398, 918), outline=(45, 75, 86), width=2)
+    draw.text((72, 70), f"{label} - Enlarged OHRC Hazard Context", fill=(238, 248, 249), font=font(36, bold=True))
+    draw.text((72, 118), "Representative crop from the downloaded 0.25 m-class OHRC browse strip", fill=(150, 211, 205), font=font(23))
+
+    x = 160
+    y = 185
+    draw.rectangle((x - 24, y - 24, x + section.width + 24, y + section.height + 24), fill=(7, 13, 17), outline=(53, 229, 214), width=3)
+    canvas.paste(section, (x, y))
+
+    panel_x = 700
+    draw.rectangle((panel_x, 210, 1330, 740), fill=(8, 17, 22), outline=(45, 75, 86), width=2)
+    draw.text((panel_x + 30, 246), "What this layer is for", fill=(53, 229, 214), font=font(30, bold=True))
+    bullets = [
+        "Visual inspection of crater rims, boulder-like spots, and rough local texture.",
+        "Used as hazard context before accepting a landing or rover traverse corridor.",
+        "Not yet a registered AOI proof; final overlap needs map-projected footprint intersection.",
+    ]
+    yy = 310
+    for bullet in bullets:
+        draw.text((panel_x + 34, yy), "-", fill=(242, 191, 90), font=font(27))
+        words = bullet.split()
+        line = ""
+        lines = []
+        for word in words:
+            test = f"{line} {word}".strip()
+            if draw.textbbox((0, 0), test, font=font(24))[2] <= 540:
+                line = test
+            else:
+                lines.append(line)
+                line = word
+        lines.append(line)
+        for line in lines:
+            draw.text((panel_x + 68, yy), line, fill=(222, 236, 240), font=font(24))
+            yy += 32
+        yy += 22
+    draw.rectangle((panel_x, 780, 1330, 850), fill=(18, 18, 10), outline=(92, 78, 36), width=2)
+    draw.text((panel_x + 26, 802), "Dashboard claim: OHRC context + hazard proxy, not final certification.", fill=(255, 224, 166), font=font(21))
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(dest, quality=95)
+
+
 def make_fusion_board() -> None:
     board = Image.new("RGB", (1600, 980), (5, 8, 12))
     draw = ImageDraw.Draw(board)
@@ -119,7 +184,12 @@ def make_fusion_board() -> None:
 
 def main() -> None:
     for name, src in SOURCES.items():
-        focus_image(src, OUT / f"{name}.png")
+        if name == "ohr_a_focus":
+            make_ohr_focus(src, OUT / f"{name}.png", "OHRC-A")
+        elif name == "ohr_b_focus":
+            make_ohr_focus(src, OUT / f"{name}.png", "OHRC-B")
+        else:
+            focus_image(src, OUT / f"{name}.png")
         print(OUT / f"{name}.png")
     make_fusion_board()
     print(OUT / "fusion_board.png")

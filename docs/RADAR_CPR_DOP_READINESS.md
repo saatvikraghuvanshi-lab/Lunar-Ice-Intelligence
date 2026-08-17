@@ -1,6 +1,6 @@
 # Radar CPR/DOP Readiness Note
 
-Date: 2026-06-19
+Date: 2026-06-20
 
 ## Current Status
 
@@ -9,7 +9,7 @@ The dashboard implements the Problem Statement 8 radar gate explicitly:
 - CPR target criterion: `CPR > 1`
 - DOP target criterion: `DOP < 0.13`
 
-Current output is a threshold-ready proxy, not exact CPR/DOP.
+Current output is a threshold-ready proxy, not exact CPR/DOP. A DFSAR readiness audit has now been generated from the extracted PDS4 labels and product files.
 
 ## What We Have
 
@@ -31,9 +31,21 @@ Derived proxy layers:
 - `data/processed/derived_layers/sar_hh_vv_ratio.tif`
 - `data/processed/demo_assets/cpr_dop_threshold_focus.png`
 
+Readiness audit outputs:
+
+- `scripts/audit_dfsar_polarimetry.py`
+- `data/processed/derived_layers/dfsar_polarimetry_audit_summary.json`
+- `data/processed/demo_assets/dfsar_polarimetry_audit_focus.png`
+
+Audit result:
+
+- Four linear polarizations found: `HH`, `HV`, `VH`, `VV`
+- Sixteen phase-orthogonality metadata values found in DFSAR PDS4 labels
+- No exact CPR, DOP, Stokes, coherency, covariance, circular-polarization, or MIDAS-style product files found in the current extracted package
+
 ## Why Exact CPR/DOP Is Still Pending
 
-Exact CPR and DOP require calibrated polarimetric products with phase/coherency information or official polarimetric outputs from a DFSAR/MIDAS-style processing path. The currently extracted rasters are intensity products, which support evidence screening but not a fully defensible exact CPR/DOP claim.
+Exact CPR and DOP require calibrated polarimetric products with phase/coherency information or official polarimetric outputs from a DFSAR/MIDAS-style processing path. The current extracted package supports HH/HV/VH/VV evidence screening and metadata auditing, but not a fully defensible exact CPR/DOP claim.
 
 ## Hackathon Handling
 

@@ -1,0 +1,377 @@
+{
+  "status": "OHRC footprint and browse-scale hazard audit generated",
+  "scientific_caution": "This is not final OHRC hazard certification. It confirms geometry availability and produces browse-scale crater/boulder candidates. The next upgrade is map-projected footprint registration against the official crater AOI and full-resolution OHRC extraction.",
+  "tmc2_south_pole_bbox": {
+    "lat_min": -89.440546,
+    "lat_max": -80.298568,
+    "lon_min": 60.227034,
+    "lon_max": 323.926081,
+    "corners": {
+      "upper_left_latitude": -89.440546,
+      "upper_left_longitude": 75.321115,
+      "upper_right_latitude": -88.827946,
+      "upper_right_longitude": 60.227034,
+      "lower_left_latitude": -80.352245,
+      "lower_left_longitude": 320.227287,
+      "lower_right_latitude": -80.298568,
+      "lower_right_longitude": 323.926081
+    }
+  },
+  "products": [
+    {
+      "id": "OHRC-A",
+      "product": "ch2_ohr_ncp_20260103T0609041371",
+      "browse_path": "data\\processed\\extracted_minimal\\browse\\calibrated\\20260103\\ch2_ohr_ncp_20260103T0609041371_b_brw_d18.png",
+      "geometry_path": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T0609041371_g_grd_d18.csv",
+      "image_size": [
+        1200,
+        10107
+      ],
+      "footprint": {
+        "records": 122452,
+        "sampled_records": 1914,
+        "lat_min": -85.3597262,
+        "lat_max": -84.5567268,
+        "lon_min": 23.0706522,
+        "lon_max": 27.7238455,
+        "pixel_min": 0,
+        "pixel_max": 11999,
+        "scan_min": 0,
+        "scan_max": 101073
+      },
+      "tmc_lat_overlap": true,
+      "tmc_lon_overlap_note": "Longitude comparison near lunar poles is projection-sensitive; exact overlap should use map-projected footprints.",
+      "hazards": [
+        {
+          "x": 240.0,
+          "y": 1431.825,
+          "bbox": [
+            0.0,
+            1193.1875,
+            480.0,
+            1670.4624999999999
+          ],
+          "area_px": 1156,
+          "compactness": 0.9781021897810219,
+          "score": 0.6160021930718084
+        },
+        {
+          "x": 240.0,
+          "y": 3102.2875,
+          "bbox": [
+            0.0,
+            2863.65,
+            480.0,
+            3340.9249999999997
+          ],
+          "area_px": 1156,
+          "compactness": 0.7153284671532847,
+          "score": 0.5372286908058805
+        },
+        {
+          "x": 720.0,
+          "y": 5250.025,
+          "bbox": [
+            480.0,
+            5011.3875,
+            960.0,
+            5488.662499999999
+          ],
+          "area_px": 1156,
+          "compactness": 0.5766423357664233,
+          "score": 0.44502405476821116
+        },
+        {
+          "x": 720.0,
+          "y": 8829.5875,
+          "bbox": [
+            480.0,
+            8590.949999999999,
+            960.0,
+            9068.225
+          ],
+          "area_px": 1156,
+          "compactness": 0.5664233576642346,
+          "score": 0.4240192752714732
+        },
+        {
+          "x": 240.0,
+          "y": 2386.375,
+          "bbox": [
+            0.0,
+            2147.7374999999997,
+            480.0,
+            2625.0125
+          ],
+          "area_px": 1156,
+          "compactness": 0.5445255474452554,
+          "score": 0.4161371107722215
+        },
+        {
+          "x": 240.0,
+          "y": 3818.2,
+          "bbox": [
+            0.0,
+            3579.5625,
+            480.0,
+            4056.8375
+          ],
+          "area_px": 1156,
+          "compactness": 0.5153284671532846,
+          "score": 0.3985105033727263
+        },
+        {
+          "x": 240.0,
+          "y": 7636.4,
+          "bbox": [
+            0.0,
+            7397.7625,
+            480.0,
+            7875.037499999999
+          ],
+          "area_px": 1156,
+          "compactness": 0.4744525547445256,
+          "score": 0.3865310119209304
+        },
+        {
+          "x": 240.0,
+          "y": 6204.575,
+          "bbox": [
+            0.0,
+            5965.9375,
+            480.0,
+            6443.2125
+          ],
+          "area_px": 1156,
+          "compactness": 0.43795620437956206,
+          "score": 0.36856455488420226
+        },
+        {
+          "x": 240.0,
+          "y": 4534.1125,
+          "bbox": [
+            0.0,
+            4295.474999999999,
+            480.0,
+            4772.75
+          ],
+          "area_px": 1156,
+          "compactness": 0.43065693430656937,
+          "score": 0.36792811477881227
+        },
+        {
+          "x": 240.0,
+          "y": 6920.4875,
+          "bbox": [
+            0.0,
+            6681.849999999999,
+            480.0,
+            7159.125
+          ],
+          "area_px": 1156,
+          "compactness": 0.36496350364963503,
+          "score": 0.3360326129439988
+        },
+        {
+          "x": 480.0,
+          "y": 9545.5,
+          "bbox": [
+            240.0,
+            9306.8625,
+            720.0,
+            9784.137499999999
+          ],
+          "area_px": 1156,
+          "compactness": 0.45985401459854014,
+          "score": 0.3287260512398714
+        },
+        {
+          "x": 240.0,
+          "y": 715.9125,
+          "bbox": [
+            0.0,
+            477.275,
+            480.0,
+            954.55
+          ],
+          "area_px": 1156,
+          "compactness": 0.45985401459854014,
+          "score": 0.3004904374906394
+        }
+      ]
+    },
+    {
+      "id": "OHRC-B",
+      "product": "ch2_ohr_ncp_20260103T1005176450",
+      "browse_path": "data\\processed\\extracted_minimal\\browse\\calibrated\\20260103\\ch2_ohr_ncp_20260103T1005176450_b_brw_d18.png",
+      "geometry_path": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T1005176450_g_grd_d18.csv",
+      "image_size": [
+        1200,
+        10107
+      ],
+      "footprint": {
+        "records": 122452,
+        "sampled_records": 1914,
+        "lat_min": -85.3194629,
+        "lat_max": -84.526433,
+        "lon_min": 22.8496171,
+        "lon_max": 27.7514807,
+        "pixel_min": 0,
+        "pixel_max": 11999,
+        "scan_min": 0,
+        "scan_max": 101074
+      },
+      "tmc_lat_overlap": true,
+      "tmc_lon_overlap_note": "Longitude comparison near lunar poles is projection-sensitive; exact overlap should use map-projected footprints.",
+      "hazards": [
+        {
+          "x": 240.0,
+          "y": 1670.4624999999999,
+          "bbox": [
+            0.0,
+            1431.825,
+            480.0,
+            1909.1
+          ],
+          "area_px": 1156,
+          "compactness": 0.9827586206896551,
+          "score": 0.6286256047276385
+        },
+        {
+          "x": 240.0,
+          "y": 238.6375,
+          "bbox": [
+            0.0,
+            0.0,
+            480.0,
+            477.275
+          ],
+          "area_px": 1156,
+          "compactness": 0.7586206896551724,
+          "score": 0.530971746362861
+        },
+        {
+          "x": 240.0,
+          "y": 3340.9249999999997,
+          "bbox": [
+            0.0,
+            3102.2875,
+            480.0,
+            3579.5625
+          ],
+          "area_px": 1156,
+          "compactness": 0.689655172413793,
+          "score": 0.5257678161265149
+        },
+        {
+          "x": 720.0,
+          "y": 9306.8625,
+          "bbox": [
+            480.0,
+            9068.225,
+            960.0,
+            9545.5
+          ],
+          "area_px": 1156,
+          "compactness": 0.6517241379310343,
+          "score": 0.46926910312756676
+        },
+        {
+          "x": 720.0,
+          "y": 5488.662499999999,
+          "bbox": [
+            480.0,
+            5250.025,
+            960.0,
+            5727.3
+          ],
+          "area_px": 1156,
+          "compactness": 0.5775862068965517,
+          "score": 0.4406773448843531
+        },
+        {
+          "x": 240.0,
+          "y": 2625.0125,
+          "bbox": [
+            0.0,
+            2386.375,
+            480.0,
+            2863.65
+          ],
+          "area_px": 1156,
+          "compactness": 0.5310344827586206,
+          "score": 0.4063131242149466
+        },
+        {
+          "x": 720.0,
+          "y": 8352.3125,
+          "bbox": [
+            480.0,
+            8113.675,
+            960.0,
+            8590.949999999999
+          ],
+          "area_px": 1156,
+          "compactness": 0.5224137931034494,
+          "score": 0.4058405444749652
+        },
+        {
+          "x": 240.0,
+          "y": 4295.474999999999,
+          "bbox": [
+            0.0,
+            4056.8375,
+            480.0,
+            4534.1125
+          ],
+          "area_px": 1156,
+          "compactness": 0.5172413793103448,
+          "score": 0.38278995109857616
+        },
+        {
+          "x": 240.0,
+          "y": 6443.2125,
+          "bbox": [
+            0.0,
+            6204.575,
+            480.0,
+            6681.849999999999
+          ],
+          "area_px": 1156,
+          "compactness": 0.3706896551724138,
+          "score": 0.3372288856414577
+        },
+        {
+          "x": 240.0,
+          "y": 7159.125,
+          "bbox": [
+            0.0,
+            6920.4875,
+            480.0,
+            7397.7625
+          ],
+          "area_px": 1156,
+          "compactness": 0.37068965517241376,
+          "score": 0.3297828430491807
+        },
+        {
+          "x": 240.0,
+          "y": 954.55,
+          "bbox": [
+            0.0,
+            715.9125,
+            480.0,
+            1193.1875
+          ],
+          "area_px": 1156,
+          "compactness": 0.5137931034482759,
+          "score": 0.3295902105246765
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "footprint_card": "data\\processed\\demo_assets\\ohrc_footprint_registration_focus.png",
+    "hazard_card": "data\\processed\\demo_assets\\ohrc_hazard_extraction_focus.png"
+  }
+}

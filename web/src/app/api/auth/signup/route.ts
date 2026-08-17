@@ -2,11 +2,19 @@ import { NextResponse } from "next/server";
 
 import { createSession, hashPassword } from "@/lib/auth";
 import { createUser, findUserByEmail } from "@/lib/user-store";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { signupSchema } from "@/lib/validation";
 
 const TERMS_VERSION = "2026-06-19";
 
 export async function POST(request: Request) {
+  if (isRateLimited(`signup:${getClientIp(request)}`)) {
+    return NextResponse.json(
+      { message: "Too many attempts. Please try again in a minute." },
+      { status: 429 },
+    );
+  }
+
   const payload = await request.json().catch(() => null);
   const parsed = signupSchema.safeParse(payload);
 
