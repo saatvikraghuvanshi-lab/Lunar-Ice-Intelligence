@@ -1,0 +1,31 @@
+{
+  "status": "experimental proxy, not exact CPR/DOP",
+  "inputs": {
+    "sar_score": "data\\processed\\derived_layers\\sar_candidate_ice_evidence_score.png",
+    "cross_to_co_ratio": "data\\processed\\derived_layers\\sar_cross_to_co_ratio.png",
+    "hh_vv_ratio": "data\\processed\\derived_layers\\sar_hh_vv_ratio.png",
+    "co_pol_mean": "data\\processed\\derived_layers\\sar_co_pol_mean.png"
+  },
+  "formulas": {
+    "cpr_like": "1.65 * (0.52 * cross_to_co_norm + 0.33 * sar_score_norm + 0.15 * co_pol_norm)",
+    "dop_like": "0.22 * (1 - (0.65 * cross_to_co_norm + 0.35 * linear_balance_proxy))",
+    "candidate_mask": "cpr_like > 1.0 AND dop_like < 0.13 AND sar_score_norm > 0.58"
+  },
+  "metrics": {
+    "candidate_pixel_pct": 19.41156649961759,
+    "mean_cpr_like_in_candidates": 1.1629912853240967,
+    "mean_dop_like_in_candidates": 0.06655578315258026
+  },
+  "outputs": {
+    "cpr_like_png": "data\\processed\\derived_layers\\experimental_cpr_like_proxy.png",
+    "dop_like_png": "data\\processed\\derived_layers\\experimental_dop_like_proxy.png",
+    "candidate_mask_png": "data\\processed\\derived_layers\\experimental_cpr_dop_candidate_mask.png",
+    "focus_card": "data\\processed\\demo_assets\\experimental_cpr_dop_proxy_focus.png"
+  },
+  "required_for_exact": [
+    "official supplied doubly shadowed crater AOI",
+    "calibrated polarimetric CPR raster",
+    "calibrated polarimetric DOP raster",
+    "or MIDAS/official processor output with phase/coherency-aware products"
+  ]
+}

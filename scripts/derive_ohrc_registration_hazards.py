@@ -8,11 +8,12 @@ from collections import deque
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTED = ROOT / "data" / "processed" / "extracted_minimal"
+AOI_DIR = ROOT / "data" / "aoi"
 TMC_XML = (
     ROOT
     / "data"
@@ -28,8 +29,16 @@ DEMO = ROOT / "data" / "processed" / "demo_assets"
 SUMMARY = DERIVED / "ohrc_registration_hazard_summary.json"
 FOOTPRINT_CARD = DEMO / "ohrc_footprint_registration_focus.png"
 HAZARD_CARD = DEMO / "ohrc_hazard_extraction_focus.png"
+OFFICIAL_AOI = AOI_DIR / "official_crater_aoi.geojson"
+PROXY_AOI = AOI_DIR / "dsc1_proxy_registration_harness.geojson"
 
 OHR_PRODUCTS = [
+    {
+        "id": "OHRC-0",
+        "product": "ch2_ohr_ncp_20260103T0410224157",
+        "browse": EXTRACTED / "browse" / "calibrated" / "20260103" / "ch2_ohr_ncp_20260103T0410224157_b_brw_d18.png",
+        "geometry": EXTRACTED / "geometry" / "calibrated" / "20260103" / "ch2_ohr_ncp_20260103T0410224157_g_grd_d18.csv",
+    },
     {
         "id": "OHRC-A",
         "product": "ch2_ohr_ncp_20260103T0609041371",
@@ -41,6 +50,12 @@ OHR_PRODUCTS = [
         "product": "ch2_ohr_ncp_20260103T1005176450",
         "browse": EXTRACTED / "browse" / "calibrated" / "20260103" / "ch2_ohr_ncp_20260103T1005176450_b_brw_d18.png",
         "geometry": EXTRACTED / "geometry" / "calibrated" / "20260103" / "ch2_ohr_ncp_20260103T1005176450_g_grd_d18.csv",
+    },
+    {
+        "id": "OHRC-C",
+        "product": "ch2_ohr_ncp_20260103T1203563771",
+        "browse": EXTRACTED / "browse" / "calibrated" / "20260103" / "ch2_ohr_ncp_20260103T1203563771_b_brw_d18.png",
+        "geometry": EXTRACTED / "geometry" / "calibrated" / "20260103" / "ch2_ohr_ncp_20260103T1203563771_g_grd_d18.csv",
     },
 ]
 
@@ -79,36 +94,108 @@ def tmc_bbox() -> dict:
 
 
 def sample_geometry(path: Path, stride: int = 64) -> dict:
-    lats: list[float] = []
-    lons: list[float] = []
-    pixels: list[int] = []
-    scans: list[int] = []
-    total = 0
-    with path.open(newline="", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        for total, row in enumerate(reader, start=1):
-            if total % stride != 1:
-                continue
-            lons.append(float(row["Longitude"]))
-            lats.append(float(row["Latitude"]))
-            pixels.append(int(row["Pixel"]))
-            scans.append(int(row["Scan"]))
+    table = np.genfromtxt(path, delimiter=",", names=True, dtype=None, encoding=None)
+    sampled = table[::stride]
+    lats = sampled["Latitude"]
+    lons = sampled["Longitude"]
+    pixels = sampled["Pixel"]
+    scans = sampled["Scan"]
     return {
-        "records": total,
+        "records": int(table.shape[0]),
         "sampled_records": len(lats),
-        "lat_min": min(lats),
-        "lat_max": max(lats),
-        "lon_min": min(lons),
-        "lon_max": max(lons),
-        "pixel_min": min(pixels),
-        "pixel_max": max(pixels),
-        "scan_min": min(scans),
-        "scan_max": max(scans),
+        "lat_min": float(np.min(lats)),
+        "lat_max": float(np.max(lats)),
+        "lon_min": float(np.min(lons)),
+        "lon_max": float(np.max(lons)),
+        "pixel_min": int(np.min(pixels)),
+        "pixel_max": int(np.max(pixels)),
+        "scan_min": int(np.min(scans)),
+        "scan_max": int(np.max(scans)),
     }
 
 
 def ranges_overlap(a_min: float, a_max: float, b_min: float, b_max: float) -> bool:
     return max(a_min, b_min) <= min(a_max, b_max)
+
+
+def iter_geojson_coords(obj: object):
+    if isinstance(obj, dict):
+        for value in obj.values():
+            yield from iter_geojson_coords(value)
+    elif isinstance(obj, list):
+        if len(obj) >= 2 and all(isinstance(value, (int, float)) for value in obj[:2]):
+            yield float(obj[0]), float(obj[1])
+        else:
+            for item in obj:
+                yield from iter_geojson_coords(item)
+
+
+def load_active_aoi() -> dict:
+    active = OFFICIAL_AOI if OFFICIAL_AOI.exists() else PROXY_AOI
+    data = json.loads(active.read_text(encoding="utf-8"))
+    coords = list(iter_geojson_coords(data))
+    if not coords:
+        raise ValueError(f"No AOI coordinates found in {active}")
+    lons = [lon for lon, _ in coords]
+    lats = [lat for _, lat in coords]
+    return {
+        "path": str(active.relative_to(ROOT)),
+        "is_official": active == OFFICIAL_AOI,
+        "status": "official_supplied_aoi_active" if active == OFFICIAL_AOI else "proxy_aoi_active",
+        "bbox": {
+            "lon_min": min(lons),
+            "lon_max": max(lons),
+            "lat_min": min(lats),
+            "lat_max": max(lats),
+        },
+    }
+
+
+def aoi_pixel_window(path: Path, aoi_bbox: dict, image_size: tuple[int, int]) -> dict | None:
+    table = np.genfromtxt(path, delimiter=",", names=True, dtype=None, encoding=None)
+    mask = (
+        (table["Longitude"] >= aoi_bbox["lon_min"])
+        & (table["Longitude"] <= aoi_bbox["lon_max"])
+        & (table["Latitude"] >= aoi_bbox["lat_min"])
+        & (table["Latitude"] <= aoi_bbox["lat_max"])
+    )
+    if not np.any(mask):
+        return None
+    pixels = table["Pixel"][mask]
+    scans = table["Scan"][mask]
+    all_pixels = table["Pixel"]
+    all_scans = table["Scan"]
+
+    width, height = image_size
+    pixel_min = int(np.min(all_pixels))
+    pixel_max = int(np.max(all_pixels))
+    scan_min = int(np.min(all_scans))
+    scan_max = int(np.max(all_scans))
+    pixel_scale = (width - 1) / max(1, pixel_max - pixel_min)
+    scan_scale = (height - 1) / max(1, scan_max - scan_min)
+    scaled_pixels = (pixels - pixel_min) * pixel_scale
+    scaled_scans = (scans - scan_min) * scan_scale
+    margin_x = max(40, int((float(np.max(scaled_pixels)) - float(np.min(scaled_pixels)) + 1) * 0.2))
+    margin_y = max(80, int((float(np.max(scaled_scans)) - float(np.min(scaled_scans)) + 1) * 0.12))
+    x1 = max(0, int(np.min(scaled_pixels)) - margin_x)
+    x2 = min(width, int(np.max(scaled_pixels)) + margin_x)
+    y1 = max(0, int(np.min(scaled_scans)) - margin_y)
+    y2 = min(height, int(np.max(scaled_scans)) + margin_y)
+    if x2 <= x1:
+        x2 = min(width, x1 + max(80, width // 8))
+    if y2 <= y1:
+        y2 = min(height, y1 + max(160, height // 12))
+    return {
+        "pixel_window": [x1, y1, x2, y2],
+        "matched_geometry_samples": int(mask.sum()),
+        "window_fraction_of_browse": ((x2 - x1) * (y2 - y1)) / max(1, width * height),
+        "geometry_to_browse_scale": {
+            "pixel_scale": pixel_scale,
+            "scan_scale": scan_scale,
+            "geometry_pixel_max": pixel_max,
+            "geometry_scan_max": scan_max,
+        },
+    }
 
 
 def normalize_gray(img: Image.Image) -> np.ndarray:
@@ -185,7 +272,14 @@ def content_bbox(arr: np.ndarray) -> tuple[int, int, int, int]:
     )
 
 
-def hazard_candidates(img: Image.Image) -> list[dict]:
+def hazard_candidates(img: Image.Image, source_window: list[int] | None = None) -> list[dict]:
+    offset_x = 0
+    offset_y = 0
+    if source_window:
+        x1, y1, x2, y2 = source_window
+        img = img.crop((x1, y1, x2, y2))
+        offset_x = x1
+        offset_y = y1
     small = img.convert("L")
     small.thumbnail((720, 720), Image.Resampling.LANCZOS)
     arr = normalize_gray(small)
@@ -228,10 +322,15 @@ def hazard_candidates(img: Image.Image) -> list[dict]:
     scale_x = img.width / small.width
     scale_y = img.height / small.height
     for comp in selected:
-        comp["x"] *= scale_x
-        comp["y"] *= scale_y
+        comp["x"] = comp["x"] * scale_x + offset_x
+        comp["y"] = comp["y"] * scale_y + offset_y
         bx1, by1, bx2, by2 = comp["bbox"]
-        comp["bbox"] = [bx1 * scale_x, by1 * scale_y, bx2 * scale_x, by2 * scale_y]
+        comp["bbox"] = [
+            bx1 * scale_x + offset_x,
+            by1 * scale_y + offset_y,
+            bx2 * scale_x + offset_x,
+            by2 * scale_y + offset_y,
+        ]
     return selected
 
 
@@ -281,8 +380,8 @@ def make_footprint_card(products: list[dict], tmc: dict) -> None:
         draw.line((x, plot[1], x, plot[3]), fill=(18, 36, 43), width=1)
         draw.text((x - 26, plot[3] + 14), f"{lon:.1f}E", fill=(111, 158, 168), font=font(18))
 
-    colors = [(53, 229, 214), (242, 191, 90)]
-    label_offsets = [(18, 18), (18, 64)]
+    colors = [(53, 229, 214), (242, 191, 90), (156, 208, 116), (238, 112, 102)]
+    label_offsets = [(18, 18), (18, 58), (18, 98), (18, 138)]
     for index, (product, color) in enumerate(zip(products, colors)):
         bbox = product["footprint"]
         x1, y1 = map_xy(bbox["lon_min"], bbox["lat_max"])
@@ -298,7 +397,7 @@ def make_footprint_card(products: list[dict], tmc: dict) -> None:
     draw.text((side_x + 26, 214), "How to read this", fill=(53, 229, 214), font=font(28))
     notes = [
         "Each box is a downloaded OHRC strip footprint derived from its geometry CSV.",
-        "Both strips sit inside the TMC-2 south-pole latitude range.",
+        "All four strips sit inside the TMC-2 south-pole latitude range.",
         "This proves geometry readiness, not final official crater AOI registration.",
     ]
     yy = 270
@@ -319,56 +418,83 @@ def make_footprint_card(products: list[dict], tmc: dict) -> None:
     draw.text((side_x + 44, 622), "Next: map-project and intersect", fill=(255, 224, 166), font=font(18))
     draw.text((side_x + 44, 646), "with official supplied crater AOI.", fill=(255, 224, 166), font=font(18))
 
-    y = 748
+    y = 742
     for product in products:
         overlap = "regional overlap" if product["tmc_lat_overlap"] else "outside TMC latitude span"
-        draw.rectangle((58, y, 1382, y + 70), fill=(9, 18, 23), outline=(41, 66, 76), width=1)
-        draw.text((82, y + 16), product["id"], fill=(53, 229, 214), font=font(24))
-        draw.text((200, y + 16), product["product"], fill=(238, 248, 249), font=font(21))
-        draw.text((720, y + 18), f"Lat {product['footprint']['lat_min']:.3f} to {product['footprint']['lat_max']:.3f} | {overlap}", fill=(185, 211, 214), font=font(19))
-        y += 80
+        draw.rectangle((58, y, 1382, y + 42), fill=(9, 18, 23), outline=(41, 66, 76), width=1)
+        draw.text((82, y + 8), product["id"], fill=(53, 229, 214), font=font(20))
+        draw.text((190, y + 8), product["product"], fill=(238, 248, 249), font=font(18))
+        draw.text((720, y + 9), f"Lat {product['footprint']['lat_min']:.3f} to {product['footprint']['lat_max']:.3f} | {overlap}", fill=(185, 211, 214), font=font(17))
+        y += 48
     canvas.save(FOOTPRINT_CARD, quality=95)
 
 
-def make_hazard_card(products: list[dict]) -> None:
-    canvas = Image.new("RGB", (1440, 960), (5, 9, 13))
+def make_hazard_card(products: list[dict], aoi: dict) -> None:
+    canvas = Image.new("RGB", (1600, 1100), (5, 9, 13))
     draw = ImageDraw.Draw(canvas)
-    draw.rectangle((34, 34, 1406, 926), outline=(45, 75, 86), width=2)
-    draw.text((58, 58), "OHRC Browse-Scale Hazard Extraction", fill=(238, 248, 249), font=font(40))
-    draw.text((58, 110), "candidate crater/boulder zones for landing and rover-traverse review", fill=(150, 211, 205), font=font(24))
-    panels = [(58, 170, 640, 750), (676, 170, 1258, 750)]
+    draw.rectangle((34, 34, 1566, 1066), outline=(45, 75, 86), width=2)
+    draw.text((58, 58), "OHRC AOI-Registered Hazard Extraction", fill=(238, 248, 249), font=font(42))
+    draw.text((58, 112), f"candidate crater/boulder zones inside the active AOI window ({aoi['status']})", fill=(150, 211, 205), font=font(23))
+    panels = [
+        (58, 164, 772, 524),
+        (828, 164, 1542, 524),
+        (58, 552, 772, 912),
+        (828, 552, 1542, 912),
+    ]
+
+    def paste_contained(src: Image.Image, target: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+        x1, y1, x2, y2 = target
+        fitted = ImageOps.contain(src, (x2 - x1, y2 - y1), Image.Resampling.BICUBIC)
+        px = x1 + ((x2 - x1) - fitted.width) // 2
+        py = y1 + ((y2 - y1) - fitted.height) // 2
+        canvas.paste(fitted, (px, py))
+        return (px, py, px + fitted.width, py + fitted.height)
+
     for product, box in zip(products, panels):
-        img = Image.open(product["browse_path"]).convert("RGB")
-        img = ImageEnhance.Contrast(img).enhance(1.35)
-        img.thumbnail((box[2] - box[0] - 30, box[3] - box[1] - 76), Image.Resampling.LANCZOS)
-        x = box[0] + (box[2] - box[0] - img.width) // 2
-        y = box[1] + 22
-        canvas.paste(img, (x, y))
+        source = Image.open(product["browse_path"]).convert("RGB")
+        image_box = (box[0] + 24, box[1] + 22, box[2] - 24, box[3] - 76)
+        picks = [0, 1] if len(product["hazards"]) > 1 else [0] if product["hazards"] else []
+        tile_gap = 24
+        tile_w = (image_box[2] - image_box[0] - tile_gap) // 2
+        tile_h = image_box[3] - image_box[1]
         panel_draw = ImageDraw.Draw(canvas)
-        for index, candidate in enumerate(product["hazards"][:12], start=1):
-            cx = x + candidate["x"] * (img.width / product["image_size"][0])
-            cy = y + candidate["y"] * (img.height / product["image_size"][1])
-            radius = 12 + min(24, math.sqrt(candidate["area_px"]))
-            color = (242, 191, 90) if index <= 6 else (53, 229, 214)
+        for tile_index, hazard_index in enumerate(picks):
+            candidate = product["hazards"][hazard_index]
+            crop_w = min(source.width, 820)
+            crop_h = min(source.height, 1280)
+            x1 = max(0, min(source.width - crop_w, int(candidate["x"] - crop_w // 2)))
+            y1 = max(0, min(source.height - crop_h, int(candidate["y"] - crop_h // 2)))
+            crop_box = (x1, y1, x1 + crop_w, y1 + crop_h)
+            crop = source.crop(crop_box)
+            crop = ImageEnhance.Contrast(crop).enhance(1.62)
+            crop = ImageEnhance.Sharpness(crop).enhance(1.35)
+            x = image_box[0] + tile_index * (tile_w + tile_gap)
+            y = image_box[1]
+            placed = paste_contained(crop, (x, y, x + tile_w, y + tile_h))
+            px1, py1, px2, py2 = placed
+            cx = px1 + (candidate["x"] - crop_box[0]) * ((px2 - px1) / max(1, crop_w))
+            cy = py1 + (candidate["y"] - crop_box[1]) * ((py2 - py1) / max(1, crop_h))
+            radius = 20 + min(34, math.sqrt(candidate["area_px"]) * 1.05)
+            color = (242, 191, 90) if hazard_index < 6 else (53, 229, 214)
             panel_draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline=color, width=3)
+            label = "top hazard review" if hazard_index == 0 else "secondary review"
+            panel_draw.rectangle((x + 10, y + 10, x + 214, y + 42), fill=(4, 9, 12), outline=color, width=1)
+            panel_draw.text((x + 18, y + 17), label, fill=color, font=font(16))
+        if not picks:
+            draw.text((image_box[0] + 22, image_box[1] + 118), "No AOI-window hazards detected", fill=(255, 224, 166), font=font(24))
         draw.rectangle(box, outline=(45, 75, 86), width=2)
-        draw.rectangle((box[0], box[3] - 58, box[2], box[3]), fill=(4, 9, 12))
-        draw.text((box[0] + 18, box[3] - 42), f"{product['id']} | {len(product['hazards'])} candidates", fill=(238, 248, 249), font=font(23))
+        draw.rectangle((box[0], box[3] - 52, box[2], box[3]), fill=(4, 9, 12))
+        window_note = f"{product['aoi_window']['matched_geometry_samples']} AOI samples" if product["aoi_window"] else "no AOI pixel window"
+        draw.text((box[0] + 18, box[3] - 38), f"{product['id']} | AOI hazard chips | {len(product['hazards'])} candidates | {window_note}", fill=(238, 248, 249), font=font(20))
 
-    legend_x = 1280
-    draw.rectangle((legend_x, 170, 1384, 750), fill=(8, 17, 22), outline=(45, 75, 86), width=2)
-    draw.text((legend_x + 18, 202), "Legend", fill=(53, 229, 214), font=font(22))
-    draw.ellipse((legend_x + 22, 252, legend_x + 62, 292), outline=(242, 191, 90), width=4)
-    draw.text((legend_x + 18, 306), "top", fill=(255, 224, 166), font=font(18))
-    draw.text((legend_x + 18, 330), "review", fill=(255, 224, 166), font=font(18))
-    draw.ellipse((legend_x + 22, 392, legend_x + 62, 432), outline=(53, 229, 214), width=4)
-    draw.text((legend_x + 18, 446), "secondary", fill=(181, 255, 250), font=font(17))
-    draw.text((legend_x + 18, 470), "review", fill=(181, 255, 250), font=font(17))
-
-    draw.rectangle((58, 790, 1384, 884), fill=(9, 18, 23), outline=(41, 66, 76), width=2)
-    draw.text((86, 812), "Interpretation", fill=(242, 191, 90), font=font(24))
-    draw.text((264, 812), "This is a browse-scale hazard proxy. It helps explain where the rover route needs local inspection.", fill=(238, 248, 249), font=font(22))
-    draw.text((264, 846), "Final landing certification still requires full-resolution OHRC registration to the official crater AOI.", fill=(150, 211, 205), font=font(21))
+    draw.rectangle((58, 948, 1542, 1032), fill=(9, 18, 23), outline=(41, 66, 76), width=2)
+    draw.text((86, 972), "Interpretation", fill=(242, 191, 90), font=font(24))
+    draw.ellipse((284, 976, 318, 1010), outline=(242, 191, 90), width=3)
+    draw.text((334, 976), "top review", fill=(255, 224, 166), font=font(20))
+    draw.ellipse((502, 976, 536, 1010), outline=(53, 229, 214), width=3)
+    draw.text((552, 976), "secondary review", fill=(181, 255, 250), font=font(20))
+    draw.text((760, 970), "Use this to reject visually risky landing/traverse corridors.", fill=(238, 248, 249), font=font(20))
+    draw.text((760, 1000), "Final certification still needs the official crater AOI if this run is using the proxy harness.", fill=(255, 224, 166), font=font(20))
     canvas.save(HAZARD_CARD, quality=95)
 
 
@@ -376,11 +502,13 @@ def main() -> None:
     DERIVED.mkdir(parents=True, exist_ok=True)
     DEMO.mkdir(parents=True, exist_ok=True)
     tmc = tmc_bbox()
+    aoi = load_active_aoi()
     products = []
     for spec in OHR_PRODUCTS:
         footprint = sample_geometry(spec["geometry"])
         img = Image.open(spec["browse"])
-        hazards = hazard_candidates(img)
+        window = aoi_pixel_window(spec["geometry"], aoi["bbox"], img.size)
+        hazards = hazard_candidates(img, window["pixel_window"] if window else None)
         products.append(
             {
                 "id": spec["id"],
@@ -389,6 +517,7 @@ def main() -> None:
                 "geometry_path": str(spec["geometry"].relative_to(ROOT)),
                 "image_size": list(img.size),
                 "footprint": footprint,
+                "aoi_window": window,
                 "tmc_lat_overlap": ranges_overlap(footprint["lat_min"], footprint["lat_max"], tmc["lat_min"], tmc["lat_max"]),
                 "tmc_lon_overlap_note": "Longitude comparison near lunar poles is projection-sensitive; exact overlap should use map-projected footprints.",
                 "hazards": hazards,
@@ -396,13 +525,14 @@ def main() -> None:
         )
 
     make_footprint_card(products, tmc)
-    make_hazard_card(products)
+    make_hazard_card(products, aoi)
     summary = {
-        "status": "OHRC footprint and browse-scale hazard audit generated",
+        "status": "OHRC footprint and AOI-window hazard audit generated",
         "scientific_caution": (
-            "This is not final OHRC hazard certification. It confirms geometry availability and produces browse-scale crater/boulder candidates. "
-            "The next upgrade is map-projected footprint registration against the official crater AOI and full-resolution OHRC extraction."
+            "This is not final OHRC hazard certification. It uses geometry CSV samples to crop active-AOI windows and produces browse-scale "
+            "crater/boulder candidates inside those windows. The next upgrade is full map projection and official crater AOI replacement."
         ),
+        "active_aoi": aoi,
         "tmc2_south_pole_bbox": tmc,
         "products": products,
         "outputs": {

@@ -60,6 +60,27 @@ def infer_product_files() -> list[str]:
     return sorted(signals)
 
 
+def read_new_raw_fullpol_products() -> list[dict]:
+    products = []
+    for path in sorted((EXTRACTED / "data" / "raw" / "20251024").glob("ch2_sar_*_d_r0a_xx_fp_xx_d32.xml")):
+        root = ET.parse(path).getroot()
+        products.append(
+            {
+                "file": str(path.relative_to(ROOT)),
+                "title": text_of(root, "title"),
+                "start": text_of(root, "start_date_time"),
+                "stop": text_of(root, "stop_date_time"),
+                "processing_level": text_of(root, "processing_level"),
+                "product_id": text_of(root, "product_id"),
+                "num_polarizations": text_of(root, "num_polarizations"),
+                "polarizations": [text_of(info, "polarization") for info in root.iter() if info.tag.split("}")[-1] == "polarization_info"],
+                "frequency_band": text_of(root, "frequency_band"),
+                "look_direction": text_of(root, "look_direction"),
+            }
+        )
+    return products
+
+
 def make_card(summary: dict) -> None:
     DEMO.mkdir(parents=True, exist_ok=True)
     canvas = Image.new("RGB", (1440, 960), (5, 9, 13))
@@ -77,10 +98,10 @@ def make_card(summary: dict) -> None:
     draw.text((58, 104), "what is ready now vs. what exact CPR/DOP still needs", fill=(255, 224, 166), font=body_font)
 
     cards = [
-        ("Available", f"{summary['available_polarizations']} linear-pol intensity rasters: HH, HV, VH, VV"),
+        ("Available", f"{summary['available_polarizations']} calibrated linear-pol rasters plus {summary['new_raw_fullpol_products_found']} raw full-pol D32 products"),
         ("Metadata", f"{summary['phase_terms_found']} phase-orthogonality values found in PDS4 labels"),
-        ("Missing", "No CPR/DOP/Stokes/coherency/covariance product files found in current extracted set"),
-        ("Decision", "Keep CPR/DOP gate visible, but label it threshold-ready until official polarimetric outputs arrive"),
+        ("New 2025 SAR", "L-band right-looking HH/HV/VH/VV raw products extracted for future MIDAS/CPR-DOP processing"),
+        ("Decision", "Keep CPR/DOP gate visible, but label exact values pending calibrated polarimetric processing"),
     ]
     y = 172
     for label, value in cards:
@@ -103,13 +124,16 @@ def main() -> None:
     polarizations = sorted({pol for product in products for pol in product["polarizations"]})
     phase_values = [phase for product in products for phase in product["phase_orthogonality"]]
     exact_files = infer_product_files()
+    raw_fullpol = read_new_raw_fullpol_products()
 
     summary = {
-        "status": "threshold-ready audit complete; exact CPR/DOP not computed from current files",
+        "status": "threshold-ready audit complete; new raw full-pol candidates added; exact CPR/DOP still requires calibration/processing",
         "available_polarizations": len(polarizations),
         "polarizations": polarizations,
         "phase_terms_found": len(phase_values),
         "phase_orthogonality_range": [min(phase_values), max(phase_values)] if phase_values else None,
+        "new_raw_fullpol_products_found": len(raw_fullpol),
+        "new_raw_fullpol_products": raw_fullpol,
         "exact_cpr_dop_product_files_found": exact_files,
         "current_limitation": (
             "The extracted DFSAR rasters support HH/HV/VH/VV intensity-ratio proxy screening. "

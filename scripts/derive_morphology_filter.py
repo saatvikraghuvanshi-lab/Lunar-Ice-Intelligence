@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import rasterio
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,6 +67,29 @@ def save_png(path: Path, arr: np.ndarray) -> None:
     Image.fromarray(image).save(path)
 
 
+def terrain_region_crops(img: Image.Image, count: int = 2) -> list[Image.Image]:
+    gray = np.asarray(img.convert("L"))
+    mask = gray > 18
+    try:
+        from scipy import ndimage
+
+        labels, total = ndimage.label(mask)
+        regions = []
+        for label_id in range(1, total + 1):
+            ys, xs = np.where(labels == label_id)
+            if len(xs) < 500:
+                continue
+            x1, x2 = xs.min(), xs.max()
+            y1, y2 = ys.min(), ys.max()
+            area = (x2 - x1 + 1) * (y2 - y1 + 1)
+            regions.append((area, x1, y1, x2, y2))
+        regions.sort(reverse=True)
+        boxes = [(x1, y1, x2 + 1, y2 + 1) for _, x1, y1, x2, y2 in regions[:count]]
+    except Exception:
+        boxes = [(0, 0, img.width // 2, img.height // 2), (img.width // 2, img.height // 2, img.width, img.height)]
+    return [img.crop(box) for box in boxes]
+
+
 def main() -> None:
     slope = read(SLOPE)
     access = read(ACCESS)
@@ -92,19 +115,45 @@ def main() -> None:
     rough_threshold = np.percentile(rough_arr[rough_arr > 0], 84) if (rough_arr > 0).any() else 255
     alpha = np.where(rough_arr > rough_threshold, 130, 0).astype("uint8")
     overlay.putalpha(Image.fromarray(alpha))
-    canvas = base.convert("RGBA")
-    canvas.alpha_composite(overlay)
-    out = canvas.convert("RGB")
+    map_canvas = base.convert("RGBA")
+    map_canvas.alpha_composite(overlay)
+    map_image = map_canvas.convert("RGB")
+    crops = terrain_region_crops(map_image, 2)
+
+    out = Image.new("RGB", (1440, 960), (5, 9, 13))
     draw = ImageDraw.Draw(out)
-    draw.rectangle((42, 42, 1010, 218), fill=(4, 9, 12), outline=(255, 93, 93), width=4)
-    draw.text((70, 68), "Rough-Terrain False-Positive Filter", fill=(244, 247, 248), font=font(34, bold=True))
-    draw.text((70, 116), "Red overlay = reject or review before ice-volume ranking", fill=(255, 180, 180), font=font(25))
-    draw.text((70, 154), "Purpose: distinguish candidate ice from radar-bright rough rocky terrain.", fill=(150, 211, 205), font=font(22))
-    draw.rectangle((1050, 42, 1390, 218), fill=(4, 9, 12), outline=(242, 191, 90), width=3)
-    draw.text((1072, 72), "Mentor checklist", fill=(242, 191, 90), font=font(23, bold=True))
-    draw.text((1072, 112), "Slope + access + SAR/cold", fill=(238, 248, 249), font=font(19))
-    draw.text((1072, 142), "mismatch screen", fill=(238, 248, 249), font=font(19))
-    draw.text((1072, 172), "before rover route choice", fill=(238, 248, 249), font=font(19))
+    draw.rectangle((34, 34, 1406, 926), outline=(45, 75, 86), width=2)
+    draw.text((62, 58), "Rough-Terrain False-Positive Filter", fill=(244, 247, 248), font=font(44, bold=True))
+    draw.text((62, 114), "Reject radar-bright rough terrain before ice-volume ranking", fill=(255, 180, 180), font=font(28))
+
+    panels = [(64, 190, 682, 724), (724, 190, 1168, 724)]
+    labels = ["review/reject terrain island", "candidate corridor context"]
+    for crop, box, label in zip(crops, panels, labels):
+        crop = ImageEnhance.Contrast(crop).enhance(1.18)
+        crop.thumbnail((box[2] - box[0] - 36, box[3] - box[1] - 72), Image.Resampling.LANCZOS)
+        x = box[0] + (box[2] - box[0] - crop.width) // 2
+        y = box[1] + 24
+        draw.rectangle(box, fill=(0, 0, 0), outline=(45, 75, 86), width=2)
+        out.paste(crop, (x, y))
+        draw.rectangle((box[0], box[3] - 54, box[2], box[3]), fill=(4, 9, 12))
+        draw.text((box[0] + 22, box[3] - 38), label, fill=(255, 180, 180), font=font(23, bold=True))
+
+    side_x = 1198
+    draw.rectangle((side_x, 190, 1374, 724), fill=(8, 17, 22), outline=(242, 191, 90), width=2)
+    draw.text((side_x + 22, 226), "Mentor", fill=(242, 191, 90), font=font(28, bold=True))
+    draw.text((side_x + 22, 272), "check", fill=(244, 247, 248), font=font(30, bold=True))
+    draw.text((side_x + 22, 340), "Slope", fill=(150, 211, 205), font=font(24, bold=True))
+    draw.text((side_x + 22, 382), "Access", fill=(150, 211, 205), font=font(24, bold=True))
+    draw.text((side_x + 22, 424), "SAR/cold", fill=(150, 211, 205), font=font(24, bold=True))
+    draw.text((side_x + 22, 466), "mismatch", fill=(150, 211, 205), font=font(24, bold=True))
+    draw.text((side_x + 22, 546), "Goal", fill=(242, 191, 90), font=font(28, bold=True))
+    draw.text((side_x + 22, 592), "avoid", fill=(244, 247, 248), font=font(28, bold=True))
+    draw.text((side_x + 22, 628), "false ice", fill=(244, 247, 248), font=font(28, bold=True))
+
+    draw.rectangle((64, 772, 1374, 876), fill=(9, 18, 23), outline=(41, 66, 76), width=2)
+    draw.text((92, 794), "Interpretation", fill=(242, 191, 90), font=font(28, bold=True))
+    draw.text((290, 794), "Red overlay marks terrain that should be rejected or reviewed before selecting ice targets.", fill=(238, 248, 249), font=font(25))
+    draw.text((290, 834), "It helps distinguish radar-bright rough rock from plausible volatile-bearing terrain.", fill=(150, 211, 205), font=font(23))
     out.save(FOCUS, quality=95)
 
     valid = np.isfinite(rough_risk)
