@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import rasterio
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -123,6 +123,29 @@ def draw_metric_card(title: str, subtitle: str, lines: list[str], path: Path, ac
     canvas.save(path, quality=95)
 
 
+def terrain_region_crops(img: Image.Image, count: int = 2) -> list[Image.Image]:
+    gray = np.asarray(img.convert("L"))
+    mask = gray > 18
+    try:
+        from scipy import ndimage
+
+        labels, total = ndimage.label(mask)
+        regions = []
+        for label_id in range(1, total + 1):
+            ys, xs = np.where(labels == label_id)
+            if len(xs) < 500:
+                continue
+            x1, x2 = xs.min(), xs.max()
+            y1, y2 = ys.min(), ys.max()
+            area = (x2 - x1 + 1) * (y2 - y1 + 1)
+            regions.append((area, x1, y1, x2, y2))
+        regions.sort(reverse=True)
+        boxes = [(x1, y1, x2 + 1, y2 + 1) for _, x1, y1, x2, y2 in regions[:count]]
+    except Exception:
+        boxes = [(0, 0, img.width // 2, img.height // 2), (img.width // 2, img.height // 2, img.width, img.height)]
+    return [img.crop(box) for box in boxes]
+
+
 def make_dsc_layer() -> dict:
     cold, profile = read(COLD)
     shadow, _ = read(SHADOW)
@@ -169,17 +192,43 @@ def make_dsc_layer() -> dict:
     color.putalpha(Image.fromarray(alpha))
     base_rgba = base.convert("RGBA")
     base_rgba.alpha_composite(color)
-    canvas = base_rgba.convert("RGB")
+    map_image = base_rgba.convert("RGB")
+    crops = terrain_region_crops(map_image, 2)
+
+    canvas = Image.new("RGB", (1440, 960), (5, 9, 13))
     draw = ImageDraw.Draw(canvas)
-    panel = (42, 42, 950, 202)
-    draw.rectangle(panel, fill=(4, 9, 12), outline=(242, 191, 90), width=4)
-    draw.text((70, 66), "DSC-1 / Faustini-Class Candidate", fill=(244, 247, 248), font=font(34, bold=True))
-    draw.text((70, 112), f"Top 6% cold + shadow mask | area {candidate_area_m2 / 1_000_000:.2f} sq km", fill=(255, 224, 166), font=font(25))
-    draw.text((70, 150), "Cyan overlay = proxy doubly shadowed crater evidence; official AOI still pending.", fill=(150, 211, 205), font=font(22))
-    draw.rectangle((1010, 42, 1390, 202), fill=(4, 9, 12), outline=(53, 229, 214), width=3)
-    draw.text((1032, 68), "Why it matters", fill=(53, 229, 214), font=font(24, bold=True))
-    draw.text((1032, 106), "Prioritizes volatile-friendly terrain", fill=(238, 248, 249), font=font(20))
-    draw.text((1032, 136), "for landing + rover traverse planning.", fill=(238, 248, 249), font=font(20))
+    draw.rectangle((34, 34, 1406, 926), outline=(45, 75, 86), width=2)
+    draw.text((62, 58), "DSC-1 / Faustini-Class Candidate", fill=(244, 247, 248), font=font(46, bold=True))
+    draw.text((62, 116), "Proxy doubly shadowed crater target until official AOI arrives", fill=(150, 211, 205), font=font(28))
+
+    panels = [(64, 190, 680, 724), (724, 190, 1168, 724)]
+    labels = ["candidate terrain island", "secondary overlap context"]
+    for crop, box, label in zip(crops, panels, labels):
+        crop = ImageEnhance.Contrast(crop).enhance(1.18)
+        crop.thumbnail((box[2] - box[0] - 36, box[3] - box[1] - 72), Image.Resampling.LANCZOS)
+        x = box[0] + (box[2] - box[0] - crop.width) // 2
+        y = box[1] + 24
+        draw.rectangle(box, fill=(0, 0, 0), outline=(45, 75, 86), width=2)
+        canvas.paste(crop, (x, y))
+        draw.rectangle((box[0], box[3] - 54, box[2], box[3]), fill=(4, 9, 12))
+        draw.text((box[0] + 22, box[3] - 38), label, fill=(53, 229, 214), font=font(23, bold=True))
+
+    side_x = 1198
+    draw.rectangle((side_x, 190, 1374, 724), fill=(8, 17, 22), outline=(53, 229, 214), width=2)
+    draw.text((side_x + 22, 226), "Score", fill=(53, 229, 214), font=font(28, bold=True))
+    draw.text((side_x + 22, 272), "Top 6%", fill=(244, 247, 248), font=font(32, bold=True))
+    draw.text((side_x + 22, 330), "Area", fill=(53, 229, 214), font=font(28, bold=True))
+    draw.text((side_x + 22, 376), f"{candidate_area_m2 / 1_000_000:.2f}", fill=(244, 247, 248), font=font(32, bold=True))
+    draw.text((side_x + 22, 414), "sq km", fill=(185, 211, 214), font=font(21))
+    draw.text((side_x + 22, 478), "Depth", fill=(53, 229, 214), font=font(28, bold=True))
+    draw.text((side_x + 22, 524), "0-5 m", fill=(244, 247, 248), font=font(32, bold=True))
+    draw.text((side_x + 22, 590), "Claim", fill=(53, 229, 214), font=font(28, bold=True))
+    draw.text((side_x + 22, 636), "proxy", fill=(255, 224, 166), font=font(30, bold=True))
+
+    draw.rectangle((64, 772, 1374, 876), fill=(9, 18, 23), outline=(41, 66, 76), width=2)
+    draw.text((92, 794), "Interpretation", fill=(242, 191, 90), font=font(28, bold=True))
+    draw.text((290, 794), "Cyan marks cold + shadow candidate terrain for landing/traverse planning.", fill=(238, 248, 249), font=font(25))
+    draw.text((290, 834), "It is not confirmed ice; exact AOI, CPR/DOP, and ephemeris illumination are still validation gates.", fill=(150, 211, 205), font=font(23))
     canvas.save(DSC_FOCUS, quality=95)
 
     return {

@@ -1,0 +1,206 @@
+{
+  "radar_cpr_dop": {
+    "status": "raw_full_pol_available_processing_required",
+    "can_compute_exact_cpr_dop_now": false,
+    "reason": "Exact CPR/DOP needs calibrated circular-pol/Stokes/coherency/covariance/MIDAS products. Current raw D32 ZIPs include large raw .dat echo files, but they are not calibrated map-projected CPR/DOP rasters.",
+    "linear_polarizations_found": [
+      "HH",
+      "HV",
+      "VH",
+      "VV"
+    ],
+    "phase_orthogonality_values_found": 28,
+    "phase_orthogonality_range": [
+      -5.05043,
+      2.882338
+    ],
+    "exact_product_files_found": [],
+    "raw_zip_products": [
+      {
+        "archive": "data\\raw\\dfsar\\ch2_sar_nrxl_20251024t075159312_d_fp_d32.zip",
+        "dat_files": [
+          "data/raw/20251024/ch2_sar_nrxl_20251024t075159312_d_r0a_xx_fp_xx_d32.dat"
+        ],
+        "xml_files": [
+          "data/raw/20251024/ch2_sar_nrxl_20251024t075159312_d_r0a_xx_fp_xx_d32.xml",
+          "geometry/raw/20251024/ch2_sar_nrxl_20251024t075159312_g_oat_xx_fp_xx_d32.xml"
+        ],
+        "dat_bytes": 2806392377
+      },
+      {
+        "archive": "data\\raw\\dfsar\\ch2_sar_nrxl_20251024t094954820_d_fp_d32.zip",
+        "dat_files": [
+          "data/raw/20251024/ch2_sar_nrxl_20251024t094954820_d_r0a_xx_fp_xx_d32.dat"
+        ],
+        "xml_files": [
+          "data/raw/20251024/ch2_sar_nrxl_20251024t094954820_d_r0a_xx_fp_xx_d32.xml",
+          "geometry/raw/20251024/ch2_sar_nrxl_20251024t094954820_g_oat_xx_fp_xx_d32.xml"
+        ],
+        "dat_bytes": 2803137377
+      },
+      {
+        "archive": "data\\raw\\dfsar\\ch2_sar_nrxl_20251024t114751370_d_fp_d32.zip",
+        "dat_files": [
+          "data/raw/20251024/ch2_sar_nrxl_20251024t114751370_d_r0a_xx_fp_xx_d32.dat"
+        ],
+        "xml_files": [
+          "data/raw/20251024/ch2_sar_nrxl_20251024t114751370_d_r0a_xx_fp_xx_d32.xml",
+          "geometry/raw/20251024/ch2_sar_nrxl_20251024t114751370_g_oat_xx_fp_xx_d32.xml"
+        ],
+        "dat_bytes": 2803137377
+      }
+    ]
+  },
+  "active_aoi": {
+    "path": "data\\aoi\\dsc1_proxy_registration_harness.geojson",
+    "is_official": false,
+    "status": "proxy_registration_harness_active",
+    "bbox": {
+      "lon_min": 24.4,
+      "lon_max": 26.5,
+      "lat_min": -85.22,
+      "lat_max": -84.84
+    }
+  },
+  "ohrc_registration": {
+    "status": "proxy_aoi_registration_harness",
+    "aoi": {
+      "path": "data\\aoi\\dsc1_proxy_registration_harness.geojson",
+      "is_official": false,
+      "status": "proxy_registration_harness_active",
+      "bbox": {
+        "lon_min": 24.4,
+        "lon_max": 26.5,
+        "lat_min": -85.22,
+        "lat_max": -84.84
+      }
+    },
+    "products": [
+      {
+        "product": "ch2_ohr_ncp_20260103T0410224157",
+        "geometry": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T0410224157_g_grd_d18.csv",
+        "footprint_bbox": {
+          "file": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T0410224157_g_grd_d18.csv",
+          "records": 122452,
+          "sampled_records": 1914,
+          "lat_min": -85.4821265,
+          "lat_max": -84.6801456,
+          "lon_min": 23.6258905,
+          "lon_max": 28.3106968
+        },
+        "aoi_overlap": {
+          "bbox": {
+            "lon_min": 24.4,
+            "lon_max": 26.5,
+            "lat_min": -85.22,
+            "lat_max": -84.84
+          },
+          "area_deg2": 0.7979999999999909,
+          "overlap_fraction_of_aoi": 1.0,
+          "intersects": true
+        },
+        "registration_status": "candidate_overlap"
+      },
+      {
+        "product": "ch2_ohr_ncp_20260103T0609041371",
+        "geometry": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T0609041371_g_grd_d18.csv",
+        "footprint_bbox": {
+          "file": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T0609041371_g_grd_d18.csv",
+          "records": 122452,
+          "sampled_records": 1914,
+          "lat_min": -85.3597262,
+          "lat_max": -84.5567268,
+          "lon_min": 23.0706522,
+          "lon_max": 27.7238455
+        },
+        "aoi_overlap": {
+          "bbox": {
+            "lon_min": 24.4,
+            "lon_max": 26.5,
+            "lat_min": -85.22,
+            "lat_max": -84.84
+          },
+          "area_deg2": 0.7979999999999909,
+          "overlap_fraction_of_aoi": 1.0,
+          "intersects": true
+        },
+        "registration_status": "candidate_overlap"
+      },
+      {
+        "product": "ch2_ohr_ncp_20260103T1005176450",
+        "geometry": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T1005176450_g_grd_d18.csv",
+        "footprint_bbox": {
+          "file": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T1005176450_g_grd_d18.csv",
+          "records": 122452,
+          "sampled_records": 1914,
+          "lat_min": -85.3194629,
+          "lat_max": -84.526433,
+          "lon_min": 22.8496171,
+          "lon_max": 27.7514807
+        },
+        "aoi_overlap": {
+          "bbox": {
+            "lon_min": 24.4,
+            "lon_max": 26.5,
+            "lat_min": -85.22,
+            "lat_max": -84.84
+          },
+          "area_deg2": 0.7979999999999909,
+          "overlap_fraction_of_aoi": 1.0,
+          "intersects": true
+        },
+        "registration_status": "candidate_overlap"
+      },
+      {
+        "product": "ch2_ohr_ncp_20260103T1203563771",
+        "geometry": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T1203563771_g_grd_d18.csv",
+        "footprint_bbox": {
+          "file": "data\\processed\\extracted_minimal\\geometry\\calibrated\\20260103\\ch2_ohr_ncp_20260103T1203563771_g_grd_d18.csv",
+          "records": 122452,
+          "sampled_records": 1914,
+          "lat_min": -85.3212424,
+          "lat_max": -84.5333806,
+          "lon_min": 22.8487766,
+          "lon_max": 27.939505
+        },
+        "aoi_overlap": {
+          "bbox": {
+            "lon_min": 24.4,
+            "lon_max": 26.5,
+            "lat_min": -85.22,
+            "lat_max": -84.84
+          },
+          "area_deg2": 0.7979999999999909,
+          "overlap_fraction_of_aoi": 1.0,
+          "intersects": true
+        },
+        "registration_status": "candidate_overlap"
+      }
+    ],
+    "best_overlap_fraction": 1.0,
+    "scientific_caution": "This is bbox/footprint readiness. Final certification requires map-projected OHRC-to-official-AOI intersection and full-resolution crater/boulder extraction inside that AOI."
+  },
+  "ohrc_aoi_hazards": {
+    "status": "OHRC footprint and AOI-window hazard audit generated",
+    "active_aoi": {
+      "path": "data\\aoi\\dsc1_proxy_registration_harness.geojson",
+      "is_official": false,
+      "status": "proxy_aoi_active",
+      "bbox": {
+        "lon_min": 24.4,
+        "lon_max": 26.5,
+        "lat_min": -85.22,
+        "lat_max": -84.84
+      }
+    },
+    "products_with_aoi_windows": 4,
+    "total_hazard_candidates": 96,
+    "source_summary": "data\\processed\\derived_layers\\ohrc_registration_hazard_summary.json"
+  },
+  "outputs": {
+    "summary": "data\\processed\\derived_layers\\validation_gate_readiness_summary.json",
+    "dashboard_image": "data\\processed\\demo_assets\\validation_gate_readiness_focus.png",
+    "official_aoi_template": "data\\aoi\\official_crater_aoi_template.geojson",
+    "proxy_aoi_harness": "data\\aoi\\dsc1_proxy_registration_harness.geojson"
+  }
+}

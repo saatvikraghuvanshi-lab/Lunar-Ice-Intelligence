@@ -1,28 +1,38 @@
 {
-  "source": "NASA PGDA / LRO LOLA south-pole products",
-  "source_url": "https://pgda.gsfc.nasa.gov/products/90",
-  "aoi_bounds_m": [
+  "source": "NASA PDS / LRO LOLA Gridded Data Record",
+  "source_url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/",
+  "source_product": "LDEM_85S_20M",
+  "raw_label": "data\\raw\\external\\lola\\ldem_85s_20m_float.lbl",
+  "tmc_bounds_m": [
     -156232.75,
     40890.265625,
     -362.75,
     205660.265625
   ],
-  "crop_shape": [
-    165,
-    156
+  "lola_overlap_bounds_m": [
+    -151680.0,
+    40880.0,
+    -360.0,
+    151680.0
   ],
-  "tmc_slope_mean_deg": 10.670783996582031,
-  "lola_slope_mean_deg": 11.629034042358398,
-  "mean_slope_difference_deg": 0.9582500457763672,
-  "agreement_label": "strong sanity check",
+  "crop_shape": [
+    1108,
+    1513
+  ],
+  "effective_pixel_size_m": 100.01321877065433,
+  "tmc_slope_mean_deg": 9.868939399719238,
+  "lola_slope_mean_deg": 10.49899673461914,
+  "mean_slope_difference_deg": 0.6300573348999023,
+  "agreement_label": "strong independent sanity check",
   "outputs": {
-    "lola_slope_png": "data\\processed\\derived_layers\\lola_tmc_aoi_slope_1000m.png",
-    "lola_roughness_png": "data\\processed\\derived_layers\\lola_tmc_aoi_roughness_1000m.png",
-    "lola_class_png": "data\\processed\\derived_layers\\lola_tmc_aoi_class_1000m.png",
+    "lola_elevation_png": "data\\processed\\derived_layers\\lola_85s20m_tmc_overlap_elevation_m.png",
+    "lola_slope_png": "data\\processed\\derived_layers\\lola_85s20m_tmc_overlap_slope_deg.png",
+    "lola_roughness_png": "data\\processed\\derived_layers\\lola_85s20m_tmc_overlap_roughness_m.png",
     "focus_asset": "data\\processed\\demo_assets\\lola_validation_focus.png"
   },
   "notes": [
-    "LOLA products are 1000 m/pixel, much coarser than the TMC-2 DTM-derived layers.",
-    "This validates regional terrain behavior, not exact meter-scale hazards."
+    "The source LOLA product is 20 m/pixel over 85S-90S.",
+    "The dashboard quicklook is downsampled for interactivity, but it is derived from the 20 m PDS product.",
+    "This validates terrain behavior independently; it does not replace registered OHRC hazard certification."
   ]
 }
