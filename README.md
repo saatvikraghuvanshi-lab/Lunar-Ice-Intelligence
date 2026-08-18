@@ -4,6 +4,8 @@ Mission-planning prototype for **Problem Statement 8: Detection and Characteriza
 
 The system fuses Chandrayaan-2 DFSAR radar evidence, TMC-2 terrain products, OHRC footprint/hazard-readiness outputs, illumination/cold-trap proxies, NASA LOLA validation, rough-terrain rejection, solar-aware A* routing, top-5m ice-volume scenarios, and mentor-DOCX requirements from the Problem Statement 8 briefing.
 
+**Live demo: https://lunar-ice-intelligence.onrender.com/**
+
 ## Current Scientific Claim
 
 This project does **not** claim confirmed lunar water ice.
@@ -29,6 +31,16 @@ The dashboard now explicitly tracks the mentor's Faustini/F2-style reference tar
 - Solar-aware A* traverse from LZ-A to SCI-B/DSC-1.
 - Top 5 m volume scenarios: 3%, 8%, and 15% assumed ice fraction.
 - Limitations and scientific honesty panel.
+
+## Live Deployment
+
+The app is live at **https://lunar-ice-intelligence.onrender.com/**, hosted on **Render** from the `web/` directory (build command `npm install && npm run build`). The Next.js auth shell and the same-origin evidence dashboard are served together, so the whole system is one URL.
+
+Notes:
+
+- Render's **free tier spins the instance down after inactivity** — the first request after idle can take ~50 seconds to wake up.
+- If `DATABASE_URL` is not set on Render, auth uses the JSON user store (`web/.local/users.json`), which is **ephemeral** on Render's disk: accounts and sessions reset whenever the instance restarts or redeploys. To get persistent accounts, set `DATABASE_URL` to a hosted Postgres (Neon/Supabase), then run `cd web && npx prisma db push` once.
+- Build gotcha: Render installs with `NODE_ENV=production`, which omits devDependencies. Tailwind's PostCSS plugin and the TypeScript toolchain therefore live in `dependencies` (see `web/package.json`), not devDependencies.
 
 ## Run Locally
 
@@ -60,9 +72,9 @@ http://127.0.0.1:3001/signup
 
 The evidence console requires a signed-in session. Login/signup are rate-limited per IP, sessions are revocable via logout, and security headers (CSP, HSTS in production, frame/referrer/permissions policies) are applied in `web/next.config.ts`.
 
-## Deploy to Vercel
+## Alternative Host: Vercel
 
-The app is Vercel-ready. The Next.js app lives in `web/`, and the evidence dashboard ships inside it (`web/public/demo/`), so **one Vercel deploy hosts everything** — no separate static server, no `localhost` dependencies.
+Render is the current host; the app is also Vercel-ready if you prefer it there. The Next.js app lives in `web/`, and the evidence dashboard ships inside it (`web/public/demo/`), so **one Vercel deploy hosts everything** — no separate static server, no `localhost` dependencies. The Next.js app lives in `web/`, and the evidence dashboard ships inside it (`web/public/demo/`), so **one Vercel deploy hosts everything** — no separate static server, no `localhost` dependencies.
 
 1. Push the repo to GitHub.
 2. In Vercel, **Add New Project → Import** the repo, and set **Root Directory** to `web` (the Next.js project).

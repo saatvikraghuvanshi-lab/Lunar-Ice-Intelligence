@@ -74,3 +74,6 @@ data/raw_external/
 /*.pdf
 !output/pdf/*.pdf
 output/rendered/
+
+# Agent workspace
+.freebuff/

@@ -7,18 +7,24 @@ Raw ZIP archives are kept untouched under `data/raw`.
 | Instrument | File | Purpose |
 | --- | --- | --- |
 | DFSAR | `data/raw/dfsar/ch2_sar_ncls_20200913t042439405_d_fp_d18.zip` | Radar evidence layer for candidate subsurface ice indicators |
+| DFSAR | `data/raw/dfsar/ch2_sar_nrxl_20251024t075159312_d_fp_d32.zip` | Raw L-band full-pol D32 product staged for future CPR/DOP processing |
+| DFSAR | `data/raw/dfsar/ch2_sar_nrxl_20251024t094954820_d_fp_d32.zip` | Adjacent raw L-band full-pol D32 product |
+| DFSAR | `data/raw/dfsar/ch2_sar_nrxl_20251024t114751370_d_fp_d32.zip` | Adjacent raw L-band full-pol D32 product |
+| OHRC | `data/raw/ohrc/ch2_ohr_ncp_20260103T0410224157_d_img_d18.zip` | High-resolution visual hazard inspection |
 | OHRC | `data/raw/ohrc/ch2_ohr_ncp_20260103T0609041371_d_img_d18.zip` | High-resolution visual hazard inspection |
 | OHRC | `data/raw/ohrc/ch2_ohr_ncp_20260103T1005176450_d_img_d18.zip` | Second optical strip for comparison |
+| OHRC | `data/raw/ohrc/ch2_ohr_ncp_20260103T1203563771_d_img_d18.zip` | Fourth optical strip for comparison |
 | TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20231203T0019079527_d_dtm_d18.zip` | South-pole terrain model for slope and traverse-cost planning |
 | TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20231203T0019079527_d_oth_d18.zip` | Matching south-pole orthorectified image context, kept zipped to save disk |
 | TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20250426T0752081453_d_dtm_d18.zip` | Deprecated non-polar terrain test data |
 | TMC-2 | `data/raw/tmc2/ch2_tmc_ndn_20250426T0752081453_d_oth_d18.zip` | Deprecated non-polar ortho test data |
+| NASA LOLA | `data/raw/external/lola/ldem_85s_20m_float.img/.lbl/.xml` | Independent PDS 20 m south-pole DEM for terrain validation |
 
 Supporting guides are under `data/raw/docs`.
 
 ## Storage
 
-- Raw zipped science data: about 3.86 GB.
+- Raw zipped science data plus LOLA IMG products: about 9.79 GB.
 - Minimal extracted working set plus derived products: about 3.22 GB.
 - The full south-pole TMC-2 orthoproduct expands to about 1.96 GB. It is intentionally left zipped unless full-resolution texture processing is needed.
 
@@ -33,8 +39,8 @@ data/processed/extracted_minimal/
 This includes:
 
 - Deprecated non-polar TMC-2 DTM and ortho GeoTIFFs plus labels, retained only as pipeline test data.
-- Compact DFSAR SRI/GRI GeoTIFF layers plus geometry CSVs and labels.
-- OHRC browse PNGs, geometry CSVs, and labels.
+- Compact DFSAR SRI/GRI GeoTIFF layers plus geometry CSVs and labels; new raw 2025 full-pol labels and geometry CSVs.
+- OHRC browse PNGs, geometry CSVs, and labels for four 2026-01-03 strips.
 - Official browse PNGs for quick visual validation.
 
 The valid south-pole TMC-2 working set lives under:
@@ -74,16 +80,29 @@ Key outputs:
 - `tmc2_south_pole_accessibility_score.png`
 - `tmc2_south_pole_contact_sheet.png`
 - `tmc2_south_pole_summary.json`
+- `lola_85s20m_tmc_overlap_elevation_m.png`
+- `lola_85s20m_tmc_overlap_slope_deg.png`
+- `lola_85s20m_tmc_overlap_roughness_m.png`
+- `lola_external_validation_summary.json`
+- `validation_gate_readiness_summary.json`
 
 The south-pole TMC-2 strip is in lunar polar stereographic projection and approximately spans `88.65S` to `81.50S`.
+
+## AOI / Validation Gate Files
+
+- `data/aoi/dsc1_proxy_registration_harness.geojson`: current proxy AOI for exercising registration logic.
+- `data/aoi/official_crater_aoi_template.geojson`: template for the supplied crater geometry.
+- `data/aoi/official_crater_aoi.geojson`: add the official supplied crater polygon here when available.
+- `scripts/derive_validation_gates.py`: refreshes exact CPR/DOP readiness, active AOI status, and OHRC footprint overlap.
 
 ## Next Processing Steps
 
 1. Register DFSAR radar evidence and TMC-2 terrain products into a common AOI grid.
 2. Add PSR/illumination and temperature proxy layers.
-3. Use OHRC geometry CSVs and browse imagery for hazard-context overlays.
-4. Convert the current prototype scores into reproducible feature-based candidate ranking.
-5. Add rover traverse graph search across the accessibility layer.
+3. Use four OHRC geometry CSVs and browse imagery for hazard-context overlays.
+4. Convert the new raw D32 full-pol DFSAR products through a calibrated polarimetric/MIDAS path for exact CPR/DOP.
+5. Replace `data/aoi/dsc1_proxy_registration_harness.geojson` with `data/aoi/official_crater_aoi.geojson` when the supplied crater AOI is available.
+6. Convert the current prototype scores into reproducible feature-based candidate ranking.
 
 ## Demo Entry Point
 

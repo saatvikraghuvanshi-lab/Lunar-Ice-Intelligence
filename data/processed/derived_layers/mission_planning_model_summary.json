@@ -1,0 +1,126 @@
+{
+  "status": "screening mission-planning model",
+  "scientific_position": "This model ranks candidate subsurface-ice investigation zones and feasible landing/traverse concepts. It does not claim confirmed water ice until exact CPR/DOP and official crater AOI validation are supplied.",
+  "coordinate_frame": {
+    "map_projection": "lunar south-pole polar stereographic where available",
+    "dashboard_overlay": "normalized viewport coordinates for hackathon demo layers",
+    "south_indicator": "south-pole product view; south/up orientation is retained where source browse uses it"
+  },
+  "scale_model": {
+    "default_scale_bar_km": 25,
+    "tmc2_pixel_scale_m": 10,
+    "sar_processed_pixel_scale_m": 60,
+    "lola_validation_pixel_scale_m": 20,
+    "ohrc_native_resolution_m": "sub-meter class source strips; dashboard uses browse/zoom chips until map-projected AOI registration"
+  },
+  "candidate_sites": [
+    {
+      "id": "LZ-A",
+      "type": "landing",
+      "overlay_xy": [
+        47,
+        24
+      ],
+      "role": "primary terrain-safe landing gate",
+      "score": 0.63,
+      "slope_risk": 0.12,
+      "rationale": "low-slope, higher-accessibility terrain with safer traverse start conditions"
+    },
+    {
+      "id": "SCI-B",
+      "type": "science",
+      "overlay_xy": [
+        55,
+        72
+      ],
+      "role": "priority candidate subsurface-ice investigation target",
+      "score": 0.82,
+      "slope_risk": 0.21,
+      "rationale": "radar/cold-trap/accessibility consistency; still requires exact CPR/DOP validation"
+    },
+    {
+      "id": "RIM-C",
+      "type": "validation",
+      "overlay_xy": [
+        38,
+        58
+      ],
+      "role": "review target for false-positive rejection",
+      "score": 0.71,
+      "slope_risk": 0.46,
+      "rationale": "radar-bright but terrain/morphology riskier; useful for showing rough-terrain rejection"
+    }
+  ],
+  "routes": [
+    {
+      "id": "Route-A",
+      "from": "LZ-A",
+      "to": "SCI-B",
+      "decision": "recommended",
+      "estimated_distance_km": 18.7,
+      "cost": 0.34,
+      "constraints": [
+        "slope",
+        "accessibility",
+        "cold-trap science value",
+        "low-illumination solar penalty"
+      ]
+    },
+    {
+      "id": "Route-B",
+      "from": "LZ-A",
+      "to": "RIM-C",
+      "decision": "review",
+      "estimated_distance_km": 14.3,
+      "cost": 0.61,
+      "constraints": [
+        "rough terrain",
+        "higher traverse risk",
+        "false-positive validation"
+      ]
+    },
+    {
+      "id": "Route-C",
+      "from": "LZ-A",
+      "to": "SCI-B via ridge detour",
+      "decision": "backup",
+      "estimated_distance_km": 22.3,
+      "cost": 0.49,
+      "constraints": [
+        "safer slopes",
+        "longer route",
+        "solar-power exposure preference"
+      ]
+    }
+  ],
+  "prediction_model": {
+    "weights": {
+      "radar_evidence": 0.42,
+      "terrain_safety": 0.28,
+      "illumination_proxy": 0.18,
+      "optical_hazards": 0.12
+    },
+    "output": "candidate investigation priority, not confirmed ice probability",
+    "current_recommendation": "prioritize SCI-B via LZ-A, then confirm with exact CPR/DOP and registered OHRC AOI"
+  },
+  "downloads_or_inputs_still_needed": [
+    {
+      "priority": 1,
+      "name": "Official supplied crater AOI",
+      "exact_request": "official hackathon-provided doubly shadowed crater footprint/coordinates/GeoJSON or equivalent",
+      "why": "replaces DSC-1 proxy and anchors all landing/traverse/volume estimates"
+    },
+    {
+      "priority": 2,
+      "name": "Calibrated CPR/DOP or MIDAS outputs",
+      "exact_request": "CPR raster and DOP raster for the supplied DFSAR crater product, or MIDAS/official polarimetric processing output",
+      "why": "turns experimental CPR/DOP proxy into the required radar detection framework"
+    },
+    {
+      "priority": 3,
+      "name": "Map-projected OHRC AOI product",
+      "exact_request": "OHRC calibrated/map-projected strip overlapping the supplied crater AOI, plus geometry/label files",
+      "why": "enables final boulder/crater hazard certification instead of browse-scale hazard proxy"
+    }
+  ]
+}
